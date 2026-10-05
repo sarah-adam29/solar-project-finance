@@ -1,0 +1,30 @@
+[project]
+name = "solar-project-finance"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "sarah-adam29", email = "334953305+sarah-adam29@users.noreply.github.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "numpy>=2.5.3",
+    "numpy-financial>=1.1.0",
+    "openpyxl>=3.1.5",
+    "pandas>=3.0.6",
+    "plotly>=7.1.0",
+    "streamlit>=1.65.0",
+]
+
+[project.scripts]
+solar-project-finance = "solar_project_finance:main"
+
+[build-system]
+requires = ["uv_build>=0.12.21,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "ipykernel>=7.4.0",
+    "pytest>=9.1.1",
+]
