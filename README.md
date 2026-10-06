@@ -62,8 +62,18 @@ _To do:_ the app and tests are not built yet.
 _To do._ List what the model simplifies or leaves out.
 
 ## Sources
-_To do._ List the public sources behind the assumptions, including credit for
-the WACC Forecaster data in `data/wacc/` and IRENA table references.
+- Hatton, L., Staffell, I., Jansen, M., Oluleye, G., & Hawkes, A. (2026).
+  *Historical and future projected costs of capital for ten energy
+  technologies across 176 countries* [Dataset]. Zenodo.
+  https://doi.org/10.5281/zenodo.18662192 — licensed CC BY 4.0.
+  Used for: discount-rate defaults (`data/wacc/WACC_ESTIMATES_WIDE.csv`).
+
+- IRENA (2026), *Renewable power generation costs in 2025*, International
+  Renewable Energy Agency, Abu Dhabi. ISBN 978-92-9260-749-4.
+  https://www.irena.org/-/media/Files/IRENA/Agency/Publication/2026/Jul/IRENA_TEC_RPGC_in_2025_2026.pdf
+  © IRENA 2026; used with acknowledgement per IRENA's terms.
+  Used for: O&M default (Table A4), capex upper bound (Fig 3.2),
+  real WACC cross-check (Table A2), LCOE comparison (Fig 3.7).
 
 ## Licence
 MIT. See [LICENSE](LICENSE).
