@@ -14,6 +14,7 @@ over clever code.
 - Public repo: never add confidential or identifiable information (client
   names, engagement data, employer materials). Public sources and invented
   inputs only.
+- Never put personal email addresses in any file.
 - Every input in `data/assumptions.csv` has a `type`: public, derived,
   judgment or invented. Public and derived inputs must cite a reputable
   public source; judgment and invented inputs must be labelled as such in
