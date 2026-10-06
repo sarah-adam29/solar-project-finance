@@ -8,3 +8,12 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Secrets
+.env
+
+# macOS
+.DS_Store
+
+# Excel temp files (created while a workbook is open)
+~$*.xlsx
