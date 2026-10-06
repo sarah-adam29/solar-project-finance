@@ -68,6 +68,11 @@ _To do._ List what the model simplifies or leaves out.
   https://doi.org/10.5281/zenodo.18662192 — licensed CC BY 4.0.
   Used for: discount-rate defaults (`data/wacc/WACC_ESTIMATES_WIDE.csv`).
 
+- The five `data/wacc/yearly-costsofcapital-national-solar-*.csv` files:
+  Exported from the WACC Forecaster (https://wacc-forecaster.streamlit.app),
+  built by Hatton et al. on the CC BY 4.0 dataset above. Used for: cost of
+  capital component breakdown.
+
 - IRENA (2026), *Renewable power generation costs in 2025*, International
   Renewable Energy Agency, Abu Dhabi. ISBN 978-92-9260-749-4.
   https://www.irena.org/-/media/Files/IRENA/Agency/Publication/2026/Jul/IRENA_TEC_RPGC_in_2025_2026.pdf
