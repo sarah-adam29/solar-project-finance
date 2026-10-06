@@ -3,14 +3,14 @@ capacity,KSA,1000,,,MWac,invented,Reference size for a like-for-like comparison,
 capacity,UAE,1000,,,MWac,invented,Reference size for a like-for-like comparison,
 dc_ac_ratio,KSA,1.3,1.2,1.4,ratio,judgment,NREL ATB 2024 and US DOE Q1 2025 benchmark both use 1.34,https://www.energy.gov/cmei/systems/solar-photovoltaic-system-cost-benchmarks
 dc_ac_ratio,UAE,1.3,1.2,1.4,ratio,judgment,NREL ATB 2024 and US DOE Q1 2025 benchmark both use 1.34,https://www.energy.gov/cmei/systems/solar-photovoltaic-system-cost-benchmarks
-specific_yield_year1,KSA,2420,2178,2662,kWh/kWp,derived,Najran fixed-tilt PVOUT 1960 (Global Solar Atlas) x 1.24 tracker/bifacial uplift calibrated on Al Dhafra (2240 actual / 1810 fixed-tilt),https://globalsolaratlas.info
+specific_yield_year1,KSA,2420,2178,2662,kWh/kWp,derived,"Najran fixed-tilt PVOUT 1960 (Global Solar Atlas) x 1.236 tracker/bifacial uplift (2240 / 1810.2 at Al Dhafra) = 2423, rounded to 2420",https://globalsolaratlas.info
 specific_yield_year1,UAE,2240,2016,2464,kWh/kWp,derived,Al Dhafra: 4700 GWh/yr from 2100 MWp (Fichtner),https://blog.fichtner.de/en/al-dhafra-solar-pv-project/
 degradation,KSA,0.5,0.5,0.7,%/yr,public,NREL median 0.5%/yr; NREL ATB baseline 0.7%/yr,https://www.nrel.gov/pv/lifetime.html
 degradation,UAE,0.5,0.5,0.7,%/yr,public,NREL median 0.5%/yr; NREL ATB baseline 0.7%/yr,https://www.nrel.gov/pv/lifetime.html
 capex,KSA,550,450,725,USD/kWac,judgment,Saudi projects signed 2023-25 ~600/kW and tendered capacity ~500/kW (Baker Institute 2026); upper bound IRENA 2025 Saudi average 725/kW,https://www.bakerinstitute.org/sites/default/files/2026-02/20260226-Gulf%20Energy%20Transition.pdf
 capex,UAE,550,450,725,USD/kWac,judgment,Same basis as KSA,https://www.bakerinstitute.org/sites/default/files/2026-02/20260226-Gulf%20Energy%20Transition.pdf
-fixed_om,KSA,11,9,27,USD/kWac/yr,public,IRENA 2025 non-OECD O&M assumption 11.2/kW/yr (Table A4); upper bound US DOE Q1 2025 20/kWdc (~27/kWac),https://www.irena.org/Publications
-fixed_om,UAE,11,9,27,USD/kWac/yr,public,IRENA 2025 non-OECD O&M assumption 11.2/kW/yr (Table A4); upper bound US DOE Q1 2025 20/kWdc (~27/kWac),https://www.irena.org/Publications
+fixed_om,KSA,11,9,27,USD/kWac/yr,public,IRENA (2026) Table A4: non-OECD O&M assumption 11.2/kW/yr; upper bound US DOE Q1 2025 20/kWdc (~27/kWac),https://www.irena.org/-/media/Files/IRENA/Agency/Publication/2026/Jul/IRENA_TEC_RPGC_in_2025_2026.pdf
+fixed_om,UAE,11,9,27,USD/kWac/yr,public,IRENA (2026) Table A4: non-OECD O&M assumption 11.2/kW/yr; upper bound US DOE Q1 2025 20/kWdc (~27/kWac),https://www.irena.org/-/media/Files/IRENA/Agency/Publication/2026/Jul/IRENA_TEC_RPGC_in_2025_2026.pdf
 ppa_tariff,KSA,1.30,1.10,1.51,USc/kWh,public,NREP Round 6 awards Oct 2025 (1.097-1.507); IRENA cites a 1.29 Saudi record,https://taiyangnews.info/markets/saudi-arabia-concludes-nrep-round-6
 ppa_tariff,UAE,1.41,1.35,1.70,USc/kWh,public,Al Ajban 1.413 (2024); range Al Dhafra 1.35 to MBR Phase 5 1.695,https://www.meed.com/al-ajban-solar-ipp-reaches-financial-close
 ppa_term,KSA,35,25,35,years,public,Shuaibah 1 and 2: 35 years (ACWA Power); Sudair: 25 years,https://acwapower.com/en/projects/shuaibah-pv-ipp/
@@ -19,13 +19,13 @@ gearing,KSA,72,65,80,% debt,derived,Dec 2025 Saudi close: 5.9bn debt of 8.2bn to
 gearing,UAE,72,65,80,% debt,derived,Same basis as KSA,https://www.energyglobal.com/solar/01122025/acwa-power-badeel-and-aramco-subsidiary-sapco-achieve-us82-billion-financial-close/
 debt_tenor,KSA,30,30,32,years,judgment,PPA term minus 3-5 years; Sudair raised a 28-year soft mini-perm,https://acwapower.com/en/media-center/latest-news/acwa-power-announces-financial-close-for-1500-mw-sudair-solar-plant-and-aramco-joining-the-consortium-under-pif-renewables-program/
 debt_tenor,UAE,27,25,27,years,judgment,PPA term minus 3-5 years,
-debt_rate,KSA,6.1,5.0,7.5,% all-in,derived + judgment,3M SAIBOR 4.83% (Aug 2026) + assumed 1.25% margin,https://tradingeconomics.com/saudi-arabia/interbank-rate
-debt_rate,UAE,6.1,5.0,7.5,% all-in,derived + judgment,Same as KSA (both currencies USD-pegged),https://tradingeconomics.com/saudi-arabia/interbank-rate
+debt_rate,KSA,6.1,5.0,7.5,% all-in,judgment,3M SAIBOR 4.83% (Aug 2026) + assumed 1.25% margin,https://tradingeconomics.com/saudi-arabia/interbank-rate
+debt_rate,UAE,6.1,5.0,7.5,% all-in,judgment,Same as KSA (both currencies USD-pegged),https://tradingeconomics.com/saudi-arabia/interbank-rate
 corporate_income_tax,KSA,20,,,%,public,Applies to the non-Saudi/non-GCC shareholding,https://taxsummaries.pwc.com/saudi-arabia/corporate/taxes-on-corporate-income
 zakat,KSA,2.5,,,% of zakat base,public,Applies to the Saudi/GCC shareholding,https://taxsummaries.pwc.com/saudi-arabia/corporate/taxes-on-corporate-income
 foreign_ownership_share,KSA,50,0,100,%,invented,Split between income tax and zakat; set to suit the sponsor mix you model,
 corporate_tax,UAE,9,,,%,public,9% on taxable income above AED 375000 (financial years from 1 Jun 2023),https://www2.deloitte.com/content/dam/Deloitte/xe/Documents/tax/me_key-features-of-the-uae-corporate-tax-law.pdf
-discount_rate,KSA,7.7,6.0,9.0,% nominal after tax,public,Zenodo WACC dataset 2026 forecast for solar PV (Feb 2026 update); upper end = severe conflict scenario,https://zenodo.org/records/17076925
-discount_rate,UAE,7.5,6.0,8.8,% nominal after tax,judgment,Between Zenodo 2026 forecast 8.3% nominal and IRENA 2025 4.2% real; upper end = severe conflict scenario,https://zenodo.org/records/17076925
+discount_rate,KSA,7.7,6.0,9.0,% nominal after tax,public,Zenodo WACC dataset 2026 forecast for solar PV (Feb 2026 update); upper end = severe conflict scenario,https://doi.org/10.5281/zenodo.18662192
+discount_rate,UAE,7.5,6.0,8.8,% nominal after tax,judgment,Between Zenodo 2026 forecast 8.3% nominal and IRENA 2025 4.2% real; upper end = severe conflict scenario,https://doi.org/10.5281/zenodo.18662192
 project_life,KSA,35,25,40,years,judgment,Equal to PPA term; test a 5-year merchant tail,
 project_life,UAE,30,25,35,years,judgment,Equal to PPA term; test a 5-year merchant tail,
