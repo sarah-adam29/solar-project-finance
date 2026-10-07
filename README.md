@@ -59,7 +59,15 @@ uv run pytest                  # check results against the Excel answer key
 _To do:_ the app and tests are not built yet.
 
 ## Limitations
-_To do._ List what the model simplifies or leaves out.
+v1 simplifications:
+- Flat tariff and O&M.
+- All capacity reaches COD together (no phased COD).
+- Pro-rata debt/equity funding during construction.
+- Interest during construction capitalised into debt.
+- No DSRA.
+- No tax-loss carry-forward.
+- Zakat approximated as 2.5% of profit.
+- Construction period fixed at 2 years.
 
 ## Sources
 - Hatton, L., Staffell, I., Jansen, M., Oluleye, G., & Hawkes, A. (2026).
