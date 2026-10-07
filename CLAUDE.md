@@ -34,6 +34,12 @@ over clever code.
   on the Saudi/GCC share (input: `foreign_ownership_share`).
 - UAE tax: 9% corporate tax on taxable income above AED 375,000.
 
+## Pitfalls to avoid
+- Calculate the annuity once on debt at COD; do not recalculate it each
+  period.
+- Anything that feeds debt sizing has to stay outside the loan account, or
+  you get a circular reference.
+
 ## Key features (in build order)
 1. Engine: inputs in, annual cash flows and metrics out (LCOE, project IRR,
    equity IRR, NPV, min and average DSCR).
