@@ -25,7 +25,7 @@ corporate_income_tax,KSA,20,,,%,public,Applies to the non-Saudi/non-GCC sharehol
 zakat,KSA,2.5,,,% of zakat base,public,Applies to the Saudi/GCC shareholding,https://taxsummaries.pwc.com/saudi-arabia/corporate/taxes-on-corporate-income
 foreign_ownership_share,KSA,50,0,100,%,invented,Split between income tax and zakat; set to suit the sponsor mix you model,
 corporate_tax,UAE,9,,,%,public,9% on taxable income above AED 375000 (financial years from 1 Jun 2023),https://www2.deloitte.com/content/dam/Deloitte/xe/Documents/tax/me_key-features-of-the-uae-corporate-tax-law.pdf
-discount_rate,KSA,7.7,6.0,9.0,% nominal after tax,public,Zenodo WACC dataset 2026 forecast for solar PV (Feb 2026 update); upper end = severe conflict scenario,https://doi.org/10.5281/zenodo.18662192
-discount_rate,UAE,7.5,6.0,8.8,% nominal after tax,judgment,Between Zenodo 2026 forecast 8.3% nominal and IRENA 2025 4.2% real; upper end = severe conflict scenario,https://doi.org/10.5281/zenodo.18662192
+discount_rate,KSA,7.7,6.0,9.0,% nominal after tax,public,Hatton et al. (2026) WACC dataset 2026 forecast for solar PV (Feb 2026 update); upper end = severe conflict scenario,https://doi.org/10.5281/zenodo.18662192
+discount_rate,UAE,7.5,6.0,8.8,% nominal after tax,judgment,Between Hatton et al. (2026) forecast 8.3% nominal and IRENA 2025 4.2% real; upper end = severe conflict scenario,https://doi.org/10.5281/zenodo.18662192
 project_life,KSA,35,25,40,years,judgment,Equal to PPA term; test a 5-year merchant tail,
 project_life,UAE,30,25,35,years,judgment,Equal to PPA term; test a 5-year merchant tail,
