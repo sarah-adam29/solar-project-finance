@@ -22,6 +22,7 @@ over clever code.
 - Python results must match the Excel answer key within 0.1%, checked by tests.
 - Use uv: `uv add` for packages, `uv run` to run code and tests.
 - Small commits with plain-English messages.
+- The v2 backlog lives in GitHub Issues (label: v2). Check open v2 issues before starting model changes.
 
 ## Units and conventions
 - Currency: USD (SAR and AED are USD-pegged).
