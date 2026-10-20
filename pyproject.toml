@@ -13,6 +13,7 @@ dependencies = [
     "openpyxl>=3.1.5",
     "pandas>=3.0.6",
     "plotly>=7.1.0",
+    "scipy>=1.18.1",
     "streamlit>=1.65.0",
 ]
 
@@ -21,3 +22,7 @@ dev = [
     "ipykernel>=7.4.0",
     "pytest>=9.1.1",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
