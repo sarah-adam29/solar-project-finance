@@ -127,6 +127,13 @@ def load_inputs(country: str, overrides: dict | None = None) -> Inputs:
         if unknown:
             raise ValueError(f"Unknown input(s) in overrides: {sorted(unknown)}")
         inputs = replace(inputs, **overrides)
+
+    # v1 depreciates over project life and operates for the PPA term, so the two must match.
+    if inputs.project_life != inputs.ppa_term:
+        raise ValueError(
+            f"{country}: project_life ({inputs.project_life}) must equal ppa_term "
+            f"({inputs.ppa_term}) in v1. Change both together."
+        )
     return inputs
 
 
