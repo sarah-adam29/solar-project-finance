@@ -3,6 +3,9 @@
 These replace the Goal Seek and data-table steps in the Excel answer key.
 Tariffs are returned in US cents/kWh and LCOE in US cents/kWh, as in Excel's
 Outputs sheet. Rates are fractions.
+
+Each function works on the country's base case from the CSV, or on `inputs`
+if given (for example, the app's slider values).
 """
 
 from dataclasses import replace
@@ -11,7 +14,7 @@ import pandas as pd
 from scipy.optimize import brentq
 
 from model.engine import run_model
-from model.inputs import load_inputs, load_range
+from model.inputs import Inputs, load_inputs, load_range
 
 # Tariff search range for the solve-fors, in USD/kWh (0.1 to 20 US cents/kWh).
 TARIFF_RANGE = (0.001, 0.20)
@@ -37,9 +40,11 @@ def _solve(function, low: float, high: float, what: str) -> float:
     return brentq(function, low, high, xtol=1e-12, maxiter=500)
 
 
-def tariff_for_equity_irr(country: str, target: float | None = None) -> float:
+def tariff_for_equity_irr(
+    country: str, target: float | None = None, inputs: Inputs | None = None
+) -> float:
     """PPA tariff (US cents/kWh) at which equity IRR equals the target."""
-    inputs = load_inputs(country)
+    inputs = inputs or load_inputs(country)
     target = inputs.target_equity_irr if target is None else target
 
     def gap(tariff):
@@ -55,9 +60,11 @@ def tariff_for_equity_irr(country: str, target: float | None = None) -> float:
     return _solve(gap, *TARIFF_RANGE, "tariff for target equity IRR") * 100
 
 
-def tariff_for_min_dscr(country: str, target: float | None = None) -> float:
+def tariff_for_min_dscr(
+    country: str, target: float | None = None, inputs: Inputs | None = None
+) -> float:
     """PPA tariff (US cents/kWh) at which the minimum DSCR equals the target."""
-    inputs = load_inputs(country)
+    inputs = inputs or load_inputs(country)
     target = inputs.target_min_dscr if target is None else target
 
     def gap(tariff):
@@ -66,9 +73,9 @@ def tariff_for_min_dscr(country: str, target: float | None = None) -> float:
     return _solve(gap, *TARIFF_RANGE, "tariff for target minimum DSCR") * 100
 
 
-def implied_discount_rate(country: str) -> float:
+def implied_discount_rate(country: str, inputs: Inputs | None = None) -> float:
     """Discount rate at which LCOE equals the PPA tariff."""
-    inputs = load_inputs(country)
+    inputs = inputs or load_inputs(country)
     tariff_cents = inputs.ppa_tariff * 100
 
     def gap(rate):
@@ -77,9 +84,9 @@ def implied_discount_rate(country: str) -> float:
     return _solve(gap, *DISCOUNT_RATE_RANGE, "implied discount rate")
 
 
-def discount_scenarios(country: str) -> dict[str, float]:
+def discount_scenarios(country: str, inputs: Inputs | None = None) -> dict[str, float]:
     """LCOE (US cents/kWh) at the base discount rate and the two premium scenarios."""
-    inputs = load_inputs(country)
+    inputs = inputs or load_inputs(country)
     rates = {
         "base": inputs.discount_rate,
         "conflict": inputs.discount_rate + inputs.conflict_premium,
@@ -91,9 +98,9 @@ def discount_scenarios(country: str) -> dict[str, float]:
     }
 
 
-def sensitivities(country: str) -> pd.DataFrame:
+def sensitivities(country: str, inputs: Inputs | None = None) -> pd.DataFrame:
     """LCOE and equity IRR with each driver at its low and high value from the CSV."""
-    inputs = load_inputs(country)
+    inputs = inputs or load_inputs(country)
     rows = []
     for driver, parameter in SENSITIVITY_DRIVERS.items():
         low, high = load_range(country, parameter)
