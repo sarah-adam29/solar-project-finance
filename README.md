@@ -52,11 +52,35 @@ This project uses [uv](https://docs.astral.sh/uv/).
 
 ```bash
 uv sync                        # install dependencies
-uv run streamlit run app.py    # start the web app
+uv run python -m model         # print a KSA and UAE summary
 uv run pytest                  # check results against the Excel answer key
 ```
 
-_To do:_ the app and tests are not built yet.
+`uv run pytest` compares the Python results with the values saved in
+`excel/solar_answer_key.xlsx` and prints a cell-by-cell table. Every value must
+match within 0.1%.
+
+To use the engine from Python:
+
+```python
+from model.inputs import load_inputs
+from model.engine import run_model
+from model import solve
+
+results = run_model(load_inputs("KSA"))           # base case from data/assumptions.csv
+results.lcoe_cents_per_kwh, results.equity_irr    # headline metrics
+results.table                                     # annual cash flows, one row per year
+
+run_model(load_inputs("UAE", {"capex": 450}))     # override inputs, in model units
+solve.tariff_for_equity_irr("KSA")                # tariff (US cents/kWh) for the target equity IRR
+solve.sensitivities("UAE")                        # LCOE and equity IRR at each input's low and high
+```
+
+The engine is in `model/`: `inputs.py` loads and converts the inputs,
+`engine.py` builds the annual cash flows and metrics, and `solve.py` holds the
+solve-fors, discount-rate scenarios and sensitivities.
+
+The Streamlit app (`app.py`) is not built yet.
 
 ## Limitations
 v1 simplifications:

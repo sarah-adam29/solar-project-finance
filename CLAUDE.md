@@ -20,6 +20,7 @@ over clever code.
   public source; judgment and invented inputs must be labelled as such in
   the app and README.
 - Python results must match the Excel answer key within 0.1%, checked by tests.
+- Engine changes must keep tests/test_answer_key.py passing; the Excel answer key is the reference.
 - Use uv: `uv add` for packages, `uv run` to run code and tests.
 - Small commits with plain-English messages.
 - The v2 backlog lives in GitHub Issues (label: v2). Check open v2 issues before starting model changes.
