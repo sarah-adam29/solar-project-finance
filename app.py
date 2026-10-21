@@ -1,6 +1,7 @@
 """Streamlit calculator on top of the engine in model/.
 
 Run locally with: uv run streamlit run app.py
+All user-facing wording lives in ui_text.py.
 """
 
 from dataclasses import dataclass
@@ -8,14 +9,12 @@ from dataclasses import dataclass
 import pandas as pd
 import streamlit as st
 
+import ui_text as text
 from model import solve
 from model.engine import run_model
 from model.inputs import ASSUMPTIONS_CSV, COUNTRIES, load_inputs
 
-st.set_page_config(
-    page_title="Gulf solar tariffs and the cost of capital",
-    layout="wide",
-)
+st.set_page_config(page_title=text.PAGE_TITLE, layout="wide")
 
 
 # --- Sliders -------------------------------------------------------------
@@ -24,41 +23,49 @@ st.set_page_config(
 @dataclass(frozen=True)
 class Slider:
     parameter: str  # name in data/assumptions.csv and in Inputs
-    label: str
     step: float
     format: str
     to_model: float  # multiply the slider value by this to get model units
 
 
-SLIDERS = [
-    Slider("ppa_tariff", "PPA tariff (US cents/kWh)", 0.01, "%.2f", 0.01),
-    Slider("capex", "Capex (USD/kWac)", 5.0, "%.0f", 1),
-    Slider("fixed_om", "Fixed O&M (USD/kWac per year)", 0.5, "%.1f", 1),
-    Slider("specific_yield_year1", "Specific yield, year 1 (kWh/kWp)", 1.0, "%.0f", 1),
-    Slider("discount_rate", "Discount rate (%)", 0.1, "%.1f", 0.01),
-    Slider("debt_rate", "Debt rate (%)", 0.1, "%.1f", 0.01),
-    Slider("gearing", "Gearing (% debt)", 1.0, "%.0f", 0.01),
-    Slider("debt_tenor", "Debt tenor (years)", 1, "%d", 1),
-    Slider("degradation", "Degradation (% per year)", 0.05, "%.2f", 0.01),
-    Slider("dc_ac_ratio", "DC/AC ratio", 0.01, "%.2f", 1),
-]
-
-TYPE_LABELS = {
-    "public": "Public source",
-    "derived": "Derived from public sources",
-    "judgment": "Judgment",
-    "invented": "Invented",
+SLIDERS = {
+    slider.parameter: slider
+    for slider in [
+        Slider("ppa_tariff", 0.01, "%.2f", 0.01),
+        Slider("capex", 5.0, "%.0f", 1),
+        Slider("fixed_om", 0.5, "%.1f", 1),
+        Slider("specific_yield_year1", 1.0, "%.0f", 1),
+        Slider("degradation", 0.05, "%.2f", 0.01),
+        Slider("dc_ac_ratio", 0.01, "%.2f", 1),
+        Slider("gearing", 1.0, "%.0f", 0.01),
+        Slider("debt_rate", 0.1, "%.1f", 0.01),
+        Slider("debt_tenor", 1, "%d", 1),
+        Slider("discount_rate", 0.1, "%.1f", 0.01),
+    ]
 }
+
+
+def source_text(rows: pd.DataFrame, country: str, parameter: str) -> str:
+    """The CSV basis for one input, with its type, ready for a tooltip."""
+    row = rows.loc[(country, parameter)]
+    basis = row["basis"]
+    # UAE rows that say "Same as KSA" get the KSA wording in full.
+    for prefix in ("Same basis as KSA", "Same as KSA"):
+        if basis.startswith(prefix):
+            basis = rows.loc[("KSA", parameter), "basis"] + basis[len(prefix):]
+            break
+    label = text.TYPE_LABELS.get(row["type"], row["type"])
+    # A single ~ is strikethrough in Streamlit markdown.
+    return f"Source: {basis} ({label})".replace("~", r"\~")
 
 
 @st.cache_data
 def slider_settings(country: str) -> dict[str, dict]:
     """Base, slider range and help text for each slider, from the CSV."""
-    table = pd.read_csv(ASSUMPTIONS_CSV)
-    rows = table[table["country"] == country].set_index("parameter")
+    rows = pd.read_csv(ASSUMPTIONS_CSV).set_index(["country", "parameter"])
     settings = {}
-    for slider in SLIDERS:
-        row = rows.loc[slider.parameter]
+    for slider in SLIDERS.values():
+        row = rows.loc[(country, slider.parameter)]
         base, low, high = row["base"], row["low"], row["high"]
         # Widen a one-sided range by mirroring the other side, so the slider
         # can move both ways from the base case.
@@ -66,7 +73,7 @@ def slider_settings(country: str) -> dict[str, dict]:
             low = round(base - (high - base), 6)
         if high == base:
             high = round(base + (base - low), 6)
-        if slider.step == 1 and slider.format == "%d":
+        if slider.format == "%d":
             base, low, high = int(base), int(low), int(high)
         else:
             base, low, high = float(base), float(low), float(high)
@@ -74,7 +81,8 @@ def slider_settings(country: str) -> dict[str, dict]:
             "base": base,
             "low": low,
             "high": high,
-            "help": f"{TYPE_LABELS.get(row['type'], row['type'])}: {row['basis']}",
+            "help": f"{text.INPUT_DEFINITIONS[slider.parameter]}\n\n"
+            f"{source_text(rows, country, slider.parameter)}",
         }
     return settings
 
@@ -82,8 +90,8 @@ def slider_settings(country: str) -> dict[str, dict]:
 def reset_to_base() -> None:
     """Put every slider back to the selected country's base case."""
     settings = slider_settings(st.session_state["country"])
-    for slider in SLIDERS:
-        st.session_state[slider.parameter] = settings[slider.parameter]["base"]
+    for parameter in SLIDERS:
+        st.session_state[parameter] = settings[parameter]["base"]
 
 
 # --- Cached engine runs ---------------------------------------------------
@@ -108,7 +116,7 @@ def scenario(country: str, overrides: tuple) -> dict:
 
 
 def percent(value: float | None) -> str:
-    return "n.m." if value is None else f"{value:.1%}"
+    return text.NOT_MEANINGFUL if value is None else f"{value:.1%}"
 
 
 def change(current: float | None, base: float | None, unit: str, scale: float = 1, decimals: int = 2):
@@ -118,40 +126,48 @@ def change(current: float | None, base: float | None, unit: str, scale: float = 
     difference = (current - base) * scale
     if round(difference, decimals) == 0:
         return None
-    return f"{difference:+.{decimals}f}{unit} vs base"
+    return text.VERSUS_BASE.format(difference=f"{difference:+.{decimals}f}{unit}")
+
+
+def tile_help(key: str, value: float | None = 0.0) -> str:
+    """Tooltip for a tile: the definition, plus why the value is n.m. if it is."""
+    help_text = text.OUTPUT_DEFINITIONS[key]
+    if value is None:
+        help_text += f"\n\n{text.NOT_MEANINGFUL_REASONS[key]}"
+    return help_text
 
 
 # --- Page -----------------------------------------------------------------
 
-st.title("What do Gulf solar tariffs imply about the cost of capital?")
-st.write(
-    "A project finance model of utility-scale solar in Saudi Arabia and the UAE, "
-    "built from public data and checked against a hand-built Excel model."
-)
+st.title(text.TITLE)
+st.write(text.INTRO)
 
 with st.sidebar:
     if "country" not in st.session_state:
         st.session_state["country"] = COUNTRIES[0]
         reset_to_base()
-    country = st.radio("Country", COUNTRIES, key="country", horizontal=True, on_change=reset_to_base)
+    country = st.radio(text.COUNTRY_LABEL, COUNTRIES, key="country", horizontal=True, on_change=reset_to_base)
 
     settings = slider_settings(country)
     overrides = {}
-    for slider in SLIDERS:
-        setting = settings[slider.parameter]
-        value = st.slider(
-            slider.label,
-            min_value=setting["low"],
-            max_value=setting["high"],
-            step=slider.step,
-            format=slider.format,
-            help=setting["help"],
-            key=slider.parameter,
-        )
-        overrides[slider.parameter] = value * slider.to_model
+    for header, caption, parameters in text.GROUPS:
+        st.subheader(header)
+        st.caption(caption)
+        for parameter in parameters:
+            slider, setting = SLIDERS[parameter], settings[parameter]
+            value = st.slider(
+                text.SLIDER_LABELS[parameter],
+                min_value=setting["low"],
+                max_value=setting["high"],
+                step=slider.step,
+                format=slider.format,
+                help=setting["help"],
+                key=parameter,
+            )
+            overrides[parameter] = value * slider.to_model
 
-    st.button("Reset to base case", on_click=reset_to_base)
-    st.caption("Ranges from public sources; see Method below.")
+    st.button(text.RESET_BUTTON, on_click=reset_to_base)
+    st.caption(text.RANGES_NOTE)
 
 base = scenario(country, ())
 current = scenario(country, tuple(sorted(overrides.items())))
@@ -159,38 +175,43 @@ current = scenario(country, tuple(sorted(overrides.items())))
 tiles = st.columns(5)
 with tiles[0]:
     st.metric(
-        "LCOE (US cents/kWh)",
+        text.TILE_LABELS["lcoe"],
         f"{current['lcoe_cents']:.2f}",
         change(current["lcoe_cents"], base["lcoe_cents"], ""),
         delta_color="inverse",
-        help="Levelised cost of electricity: discounted capex and O&M over discounted generation.",
+        help=tile_help("lcoe"),
     )
-    st.caption(f"Awarded tariff: {current['tariff_cents']:.2f} US cents/kWh")
+    st.caption(text.AWARDED_TARIFF.format(tariff=current["tariff_cents"]))
 with tiles[1]:
     st.metric(
-        "Implied cost of capital",
+        text.TILE_LABELS["implied_rate"],
         percent(current["implied_rate"]),
         change(current["implied_rate"], base["implied_rate"], " pp", 100, 1),
-        help="The discount rate at which LCOE equals the tariff.",
+        help=tile_help("implied_rate"),
     )
 with tiles[2]:
     st.metric(
-        "Project IRR",
+        text.TILE_LABELS["project_irr"],
         percent(current["project_irr"]),
         change(current["project_irr"], base["project_irr"], " pp", 100, 1),
-        help="the project never pays back" if current["project_irr"] is None else "Unlevered, after tax.",
+        help=tile_help("project_irr", current["project_irr"]),
     )
 with tiles[3]:
     st.metric(
-        "Equity IRR",
+        text.TILE_LABELS["equity_irr"],
         percent(current["equity_irr"]),
         change(current["equity_irr"], base["equity_irr"], " pp", 100, 1),
-        help="equity is never paid back" if current["equity_irr"] is None else "Return to shareholders after debt service and tax.",
+        help=tile_help("equity_irr", current["equity_irr"]),
     )
 with tiles[4]:
     st.metric(
-        "Minimum DSCR",
+        text.TILE_LABELS["min_dscr"],
         f"{current['min_dscr']:.2f}x",
         change(current["min_dscr"], base["min_dscr"], "x"),
-        help="Lowest yearly cash available for debt service divided by debt service.",
+        help=tile_help("min_dscr"),
     )
+
+with st.expander(text.GLOSSARY_TITLE):
+    for heading, terms in ((text.GLOSSARY_INPUTS, text.INPUT_TERMS), (text.GLOSSARY_OUTPUTS, text.OUTPUT_TERMS)):
+        st.markdown(f"**{heading}**")
+        st.markdown("\n".join(f"- **{term}**: {definition}" for term, _, definition in terms))
