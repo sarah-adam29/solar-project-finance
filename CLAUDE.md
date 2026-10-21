@@ -45,11 +45,13 @@ over clever code.
 ## Key features (in build order)
 1. Engine: inputs in, annual cash flows and metrics out (LCOE, project IRR,
    equity IRR, NPV, min and average DSCR).
-2. KSA vs UAE side-by-side comparison from country presets.
-3. Tornado chart on the five biggest drivers.
-4. Solve for the tariff that hits a target equity IRR.
+2. KSA and UAE country presets, switched in the app (a side-by-side
+   comparison is planned for v2, issue #29).
+3. Tornado chart on the top five drivers by swing, for LCOE or equity IRR.
+4. Solve for the tariff that hits a target equity IRR or minimum DSCR.
 5. Back-solve the WACC implied by an awarded tender tariff.
-6. Scenarios: base, conflict premium, severe (discount rate inputs).
+6. Scenarios: base, conflict premium, severe (discount rate inputs), shown
+   as points on the app's LCOE-versus-cost-of-capital chart.
 
 ## Data
 - `data/assumptions.csv` – default inputs, ranges, type and source URL.
