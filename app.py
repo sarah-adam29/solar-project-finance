@@ -130,11 +130,25 @@ def change(current: float | None, base: float | None, unit: str, scale: float = 
     return text.VERSUS_BASE.format(difference=f"{difference:+.{decimals}f}{unit}")
 
 
+def millions(value: float) -> str:
+    """USD millions for display, e.g. −$210.8m."""
+    sign = "−" if round(value, 1) < 0 else ""
+    return f"{sign}${abs(value):,.1f}m"
+
+
+def money_change(current: float, base: float):
+    """Delta text in USD millions. Kept to a plain +/- sign so Streamlit
+    reads the direction: higher NPV is better, so up shows green."""
+    difference = current - base
+    if round(difference, 1) == 0:
+        return None
+    sign = "+" if difference > 0 else "-"
+    return text.VERSUS_BASE.format(difference=f"{sign}${abs(difference):,.1f}m")
+
+
 def tile_help(key: str, value: float | None = 0.0) -> str:
     """Tooltip for a tile: the definition, plus why the value is n.m. if it is."""
     help_text = text.OUTPUT_DEFINITIONS[key]
-    if key == "npv":
-        help_text += f"\n\n{text.NPV_BASIS}"
     if value is None:
         help_text += f"\n\n{text.NOT_MEANINGFUL_REASONS[key]}"
     return help_text
@@ -175,8 +189,9 @@ with st.sidebar:
 base = scenario(country, ())
 current = scenario(country, tuple(sorted(overrides.items())))
 
-tiles = st.columns(6)
-with tiles[0]:
+# Top row: what the tariff covers. Bottom row: what investors and lenders get.
+cost_tiles = st.columns(3)
+with cost_tiles[0]:
     st.metric(
         text.TILE_LABELS["lcoe"],
         f"{current['lcoe_cents']:.2f}",
@@ -185,42 +200,44 @@ with tiles[0]:
         help=tile_help("lcoe"),
     )
     st.caption(text.AWARDED_TARIFF.format(tariff=current["tariff_cents"]))
-with tiles[1]:
+with cost_tiles[1]:
     st.metric(
         text.TILE_LABELS["implied_rate"],
         percent(current["implied_rate"]),
         change(current["implied_rate"], base["implied_rate"], " pp", 100, 1),
         help=tile_help("implied_rate"),
     )
-with tiles[2]:
+with cost_tiles[2]:
+    st.metric(
+        text.TILE_LABELS["npv"],
+        millions(current["npv_millions"]),
+        money_change(current["npv_millions"], base["npv_millions"]),
+        help=tile_help("npv"),
+    )
+    st.caption(text.NPV_DATE)
+
+return_tiles = st.columns(3)
+with return_tiles[0]:
     st.metric(
         text.TILE_LABELS["project_irr"],
         percent(current["project_irr"]),
         change(current["project_irr"], base["project_irr"], " pp", 100, 1),
         help=tile_help("project_irr", current["project_irr"]),
     )
-with tiles[3]:
+with return_tiles[1]:
     st.metric(
         text.TILE_LABELS["equity_irr"],
         percent(current["equity_irr"]),
         change(current["equity_irr"], base["equity_irr"], " pp", 100, 1),
         help=tile_help("equity_irr", current["equity_irr"]),
     )
-with tiles[4]:
+with return_tiles[2]:
     st.metric(
         text.TILE_LABELS["min_dscr"],
         f"{current['min_dscr']:.2f}x",
         change(current["min_dscr"], base["min_dscr"], "x"),
         help=tile_help("min_dscr"),
     )
-with tiles[5]:
-    st.metric(
-        text.TILE_LABELS["npv"],
-        f"{current['npv_millions']:,.1f}",
-        change(current["npv_millions"], base["npv_millions"], "", decimals=1),
-        help=tile_help("npv"),
-    )
-    st.caption(text.NPV_DATE)
 
 with st.expander(text.GLOSSARY_TITLE):
     for heading, terms in ((text.GLOSSARY_INPUTS, text.INPUT_TERMS), (text.GLOSSARY_OUTPUTS, text.OUTPUT_TERMS)):

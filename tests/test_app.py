@@ -45,3 +45,14 @@ def test_moving_a_slider_shows_a_change_and_reset_restores_base():
     assert app.metric[0].delta is not None
     app.sidebar.button[0].click().run()
     assert app.metric[0].value == base_lcoe
+
+
+def test_npv_is_in_usd_millions_and_a_higher_npv_shows_green():
+    app = run_app("UAE")
+    npv = app.metric[list(text.TILE_LABELS).index("npv")]
+    assert npv.value == "−$210.8m"
+    assert npv.help == text.OUTPUT_DEFINITIONS["npv"]
+    app.sidebar.slider(key="ppa_tariff").set_value(1.60).run()
+    npv = app.metric[list(text.TILE_LABELS).index("npv")]
+    assert npv.delta.startswith("+$")
+    assert (npv.proto.direction, npv.proto.color) == (npv.proto.UP, npv.proto.GREEN)

@@ -137,13 +137,14 @@ OUTPUT_DEFINITIONS = {key: definition for _, key, definition in OUTPUT_TERMS}
 
 # --- Metric tiles ---------------------------------------------------------
 
+# In display order: the cost row, then the returns and debt row.
 TILE_LABELS = {
     "lcoe": "LCOE (US cents/kWh)",
     "implied_rate": "Implied cost of capital",
+    "npv": "Project NPV",
     "project_irr": "Project IRR",
     "equity_irr": "Equity IRR",
     "min_dscr": "Minimum DSCR",
-    "npv": "Project NPV (USD m)",
 }
 AWARDED_TARIFF = "Awarded tariff: {tariff:.2f} US cents/kWh"
 NOT_MEANINGFUL = "n.m."
@@ -152,10 +153,6 @@ NOT_MEANINGFUL_REASONS = {
     "equity_irr": "n.m.: equity is never paid back.",
 }
 NPV_DATE = "At financial close, start of construction"
-NPV_BASIS = (
-    "Valued at financial close, with each year's cash flow at the end of that year. Nominal USD, "
-    "after tax, before debt, for a 1,000 MW plant (an invented reference size; NPV scales with it)."
-)
 VERSUS_BASE = "{difference} vs base"
 
 GLOSSARY_TITLE = "What the terms mean"
