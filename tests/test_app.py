@@ -91,7 +91,7 @@ def test_three_charts_show_with_the_finding_first(country):
     app = run_app(country)
     assert len(chart_specs(app)) == 3
     finding_title = app.main.subheader[0].value
-    assert finding_title.startswith("Awarded tariffs only cover costs at about ")
+    assert finding_title.startswith("In this model, awarded tariffs only cover costs at about ")
 
 
 @pytest.mark.parametrize("measure", ["lcoe", "equity_irr"])
@@ -111,3 +111,18 @@ def test_finding_chart_marks_the_two_scenarios():
     labels = [note["text"] for note in chart_specs(app)[0]["layout"]["annotations"]]
     assert any(label.startswith("Conflict +70bp: ") for label in labels)
     assert any(label.startswith("Severe +130bp: ") for label in labels)
+
+
+@pytest.mark.parametrize("country", ["KSA", "UAE"])
+def test_disclaimer_shows_in_full_under_the_title_and_in_the_footer(country):
+    app = run_app(country)
+    assert app.main.info[0].value == text.DISCLAIMER
+    assert app.main.caption[-1].value == text.DISCLAIMER
+    assert "[open an issue on GitHub](https://github.com/sarah-adam29/solar-project-finance/issues)" in text.DISCLAIMER
+    assert "[message me on LinkedIn](https://www.linkedin.com/in/sarah-adam-a24949b1/)" in text.DISCLAIMER
+
+
+def test_readme_carries_the_disclaimer_word_for_word():
+    readme = (Path(APP).parent / "README.md").read_text()
+    assert f"> [!IMPORTANT]\n> {text.DISCLAIMER}" in readme
+    assert f"## Disclaimer and feedback\n{text.DISCLAIMER}" in readme

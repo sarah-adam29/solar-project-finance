@@ -24,6 +24,8 @@ over clever code.
 - Use uv: `uv add` for packages, `uv run` to run code and tests.
 - Small commits with plain-English messages.
 - The v2 backlog lives in GitHub Issues (label: v2). Check open v2 issues before starting model changes.
+- Every public output (app, README, charts) carries the disclaimer in ui_text.py; never remove or shorten it.
+- Wherever the finding is stated as fact (chart titles, README, captions), start it with "In this model,".
 
 ## Units and conventions
 - Currency: USD (SAR and AED are USD-pegged).

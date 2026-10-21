@@ -1,5 +1,8 @@
 # Solar Project Finance
 
+> [!IMPORTANT]
+> Personal learning project, not investment advice. I built this model myself from public sources to learn project finance modelling and Python. It has not been reviewed or validated by industry experts, developers, lenders or other market participants, and its results may be wrong. Please don't use it for investment, lending or policy decisions. If you have better data or spot an error, I'd be glad to hear from you: [open an issue on GitHub](https://github.com/sarah-adam29/solar-project-finance/issues) or [message me on LinkedIn](https://www.linkedin.com/in/sarah-adam-a24949b1/).
+
 > Work in progress: this README is a skeleton. Sections marked _To do_ will be
 > filled in as the model is built.
 
@@ -111,6 +114,9 @@ v1 simplifications:
   © IRENA 2026; used with acknowledgement per IRENA's terms.
   Used for: O&M default (Table A4), capex upper bound (Fig 3.2),
   real WACC cross-check (Table A2), LCOE comparison (Fig 3.7).
+
+## Disclaimer and feedback
+Personal learning project, not investment advice. I built this model myself from public sources to learn project finance modelling and Python. It has not been reviewed or validated by industry experts, developers, lenders or other market participants, and its results may be wrong. Please don't use it for investment, lending or policy decisions. If you have better data or spot an error, I'd be glad to hear from you: [open an issue on GitHub](https://github.com/sarah-adam29/solar-project-finance/issues) or [message me on LinkedIn](https://www.linkedin.com/in/sarah-adam-a24949b1/).
 
 ## Licence
 MIT. See [LICENSE](LICENSE).

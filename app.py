@@ -435,6 +435,7 @@ def tariff_chart(current: dict, tariffs: dict, targets: dict, tariff_changed: bo
 
 st.title(text.TITLE)
 st.write(text.INTRO)
+st.info(text.DISCLAIMER)
 
 with st.sidebar:
     if "country" not in st.session_state:
@@ -539,3 +540,9 @@ with tariff_column:
         tariff_chart(current, required_tariffs(country, override_key), fixed_targets, tariff_changed),
         config=chart_config,
     )
+
+# --- Footer ---------------------------------------------------------------
+
+st.divider()
+st.markdown(f"**{text.FOOTER_HEADING}**")
+st.caption(text.DISCLAIMER)

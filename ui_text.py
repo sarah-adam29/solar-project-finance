@@ -9,6 +9,19 @@ INTRO = (
     "built from public data and checked against a hand-built Excel model."
 )
 
+# Shown word for word in a notice under the title, in the Method expander and
+# in the footer, and in the README. Never remove or shorten it.
+GITHUB_ISSUES_URL = "https://github.com/sarah-adam29/solar-project-finance/issues"
+LINKEDIN_URL = "https://www.linkedin.com/in/sarah-adam-a24949b1/"
+DISCLAIMER = (
+    "Personal learning project, not investment advice. I built this model myself from public "
+    "sources to learn project finance modelling and Python. It has not been reviewed or validated "
+    "by industry experts, developers, lenders or other market participants, and its results may "
+    "be wrong. Please don't use it for investment, lending or policy decisions. If you have better "
+    "data or spot an error, I'd be glad to hear from you: "
+    f"[open an issue on GitHub]({GITHUB_ISSUES_URL}) or [message me on LinkedIn]({LINKEDIN_URL})."
+)
+
 FIXED_ASSUMPTIONS = (
     "Fixed in this model: {capacity:,.0f} MWac plant · {ppa_term}-year PPA · "
     "{construction_years}-year build · USD, nominal · valued at financial close"
@@ -203,6 +216,8 @@ NPV_DATE = "Valued at financial close, covering all cash flows to the end of the
 VERSUS_BASE = "{difference} vs base"
 MINUS = "\u2212"  # true minus sign for negative numbers
 
+FOOTER_HEADING = "Disclaimer and feedback"
+
 GLOSSARY_TITLE = "What the terms mean"
 GLOSSARY_INPUTS = "Inputs"
 GLOSSARY_FIXED = "Fixed in this model"
@@ -211,12 +226,12 @@ GLOSSARY_OUTPUTS = "Outputs"
 # --- Charts ---------------------------------------------------------------
 
 # The finding: LCOE across discount rates against the tariff.
-FINDING_TITLE = "Awarded tariffs only cover costs at about {rate}"
-FINDING_TITLE_CHANGED_TARIFF = "A {tariff:.2f}-cent tariff covers costs at about {rate}"
-FINDING_TITLE_NO_CROSSING = "The tariff and the LCOE line don't cross at any cost of capital the model can test"
+FINDING_TITLE = "In this model, awarded tariffs only cover costs at about {rate}"
+FINDING_TITLE_CHANGED_TARIFF = "In this model, a {tariff:.2f}-cent tariff covers costs at about {rate}"
+FINDING_TITLE_NO_CROSSING = "In this model, the tariff and the LCOE line don't cross at any cost of capital the model can test"
 FINDING_CAPTION = (
     "The line is the LCOE at each cost of capital, with every other input as set in the sidebar. "
-    "Where it crosses the tariff is the return the tariff actually pays for."
+    "In this model, where it crosses the tariff is the return the tariff actually pays for."
 )
 FINDING_X_AXIS = "Cost of capital (discount rate)"
 FINDING_Y_AXIS = "US cents/kWh"
