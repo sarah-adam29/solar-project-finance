@@ -35,7 +35,9 @@ FIXED_ASSUMPTIONS_HELP = (
 
 COUNTRY_LABEL = "Country"
 RESET_BUTTON = "Reset to base case"
-RANGES_NOTE = "Ranges from public sources; see Method below."
+RANGES_NOTE = (
+    "Ranges from public sources, widened slightly where a source gives a single value; see Method."
+)
 
 # Sidebar groups, in display order: (header, caption, slider parameters).
 GROUPS = [
@@ -248,12 +250,13 @@ FINDING_SCENARIO_NOTE = (
     "The two marked points add the conflict (+{conflict:.0f}bp) and severe (+{severe:.0f}bp) "
     "premiums to the discount rate set in the sidebar (judgment)."
 )
-# Shaded discount-rate range from the CSV, by the type of the country's base rate.
+# Shaded discount-rate range from the CSV (low, high, base), by the type of the
+# country's base rate.
 FINDING_BAND = {
-    "public": "Published estimates",
-    "judgment": "Estimates (judgment)",
+    "public": "Estimate range {low}–{high}% (base {base}%)",
+    "judgment": "Estimate range {low}–{high}% (base {base}%, judgment)",
 }
-FINDING_BAND_BASE = "base {rate}"
+FINDING_GAP = "Gap: {gap} pp"
 
 # Tornado: which inputs move the answer most.
 TORNADO_TITLE = "Which assumptions move the answer most"
@@ -276,7 +279,7 @@ TORNADO_NO_BASE = "Equity IRR can't be calculated for these inputs (equity is ne
 TORNADO_DRIVERS = {
     "Capex": "Capex",
     "Discount rate": "Discount rate (cost of capital)",
-    "Specific yield": "Specific yield",
+    "Specific yield": "Specific yield (kWh/kWp)",
     "Debt rate": "Debt rate",
     "Fixed O&M": "Fixed O&M",
     "Gearing": "Gearing",
@@ -287,7 +290,7 @@ TORNADO_DRIVERS = {
 TORNADO_INPUT_FORMATS = {
     "Capex": "${:,.0f}/kW",
     "Discount rate": "{:.1f}%",
-    "Specific yield": "{:,.0f} kWh/kWp",
+    "Specific yield": "{:,.0f}",  # unit is in the driver name, to keep labels short
     "Debt rate": "{:.1f}%",
     "Fixed O&M": "${:g}/kW/yr",
     "Gearing": "{:.0f}% debt",
@@ -301,6 +304,8 @@ TARIFF_CAPTION = "US cents/kWh needed to reach each target, with every other inp
 TARIFF_BARS = {
     "tariff": "Awarded tariff",
     "tariff_changed": "Tariff (your input)",
-    "equity_irr": "For a {target:.0f}% equity IRR",
+    "equity_irr": "For an {target:.0f}% equity IRR",
     "min_dscr": "For a {target:.2f}× minimum DSCR",
 }
+# Value at the end of each target bar, with its uplift on the awarded tariff.
+TARIFF_VALUE_WITH_UPLIFT = "{value} ({uplift})"
