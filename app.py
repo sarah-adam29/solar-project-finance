@@ -109,6 +109,7 @@ def scenario(country: str, overrides: tuple) -> dict:
         "project_irr": results.project_irr,
         "equity_irr": results.equity_irr,
         "min_dscr": results.min_dscr,
+        "npv_millions": results.project_npv / 1e6,
     }
 
 
@@ -132,6 +133,8 @@ def change(current: float | None, base: float | None, unit: str, scale: float = 
 def tile_help(key: str, value: float | None = 0.0) -> str:
     """Tooltip for a tile: the definition, plus why the value is n.m. if it is."""
     help_text = text.OUTPUT_DEFINITIONS[key]
+    if key == "npv":
+        help_text += f"\n\n{text.NPV_BASIS}"
     if value is None:
         help_text += f"\n\n{text.NOT_MEANINGFUL_REASONS[key]}"
     return help_text
@@ -172,7 +175,7 @@ with st.sidebar:
 base = scenario(country, ())
 current = scenario(country, tuple(sorted(overrides.items())))
 
-tiles = st.columns(5)
+tiles = st.columns(6)
 with tiles[0]:
     st.metric(
         text.TILE_LABELS["lcoe"],
@@ -210,6 +213,14 @@ with tiles[4]:
         change(current["min_dscr"], base["min_dscr"], "x"),
         help=tile_help("min_dscr"),
     )
+with tiles[5]:
+    st.metric(
+        text.TILE_LABELS["npv"],
+        f"{current['npv_millions']:,.1f}",
+        change(current["npv_millions"], base["npv_millions"], "", decimals=1),
+        help=tile_help("npv"),
+    )
+    st.caption(text.NPV_DATE)
 
 with st.expander(text.GLOSSARY_TITLE):
     for heading, terms in ((text.GLOSSARY_INPUTS, text.INPUT_TERMS), (text.GLOSSARY_OUTPUTS, text.OUTPUT_TERMS)):

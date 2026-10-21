@@ -126,8 +126,9 @@ OUTPUT_TERMS = [
     (
         "NPV",
         "npv",
-        "The value today of the project's cash flows, at the chosen cost of capital. Negative "
-        "means the project returns less than that rate.",
+        "The value of the project's cash flows at financial close (the day the loans are signed "
+        "and construction starts, two years before the plant runs), at the chosen cost of capital. "
+        "Negative means the project returns less than that rate.",
     ),
 ]
 
@@ -142,6 +143,7 @@ TILE_LABELS = {
     "project_irr": "Project IRR",
     "equity_irr": "Equity IRR",
     "min_dscr": "Minimum DSCR",
+    "npv": "Project NPV (USD m)",
 }
 AWARDED_TARIFF = "Awarded tariff: {tariff:.2f} US cents/kWh"
 NOT_MEANINGFUL = "n.m."
@@ -149,6 +151,11 @@ NOT_MEANINGFUL_REASONS = {
     "project_irr": "n.m.: the project never pays back.",
     "equity_irr": "n.m.: equity is never paid back.",
 }
+NPV_DATE = "At financial close, start of construction"
+NPV_BASIS = (
+    "Valued at financial close, with each year's cash flow at the end of that year. Nominal USD, "
+    "after tax, before debt, for a 1,000 MW plant (an invented reference size; NPV scales with it)."
+)
 VERSUS_BASE = "{difference} vs base"
 
 GLOSSARY_TITLE = "What the terms mean"
