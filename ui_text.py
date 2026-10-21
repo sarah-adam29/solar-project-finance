@@ -9,6 +9,15 @@ INTRO = (
     "built from public data and checked against a hand-built Excel model."
 )
 
+FIXED_ASSUMPTIONS = (
+    "Fixed in this model: {capacity:,.0f} MWac plant · {ppa_term}-year PPA · "
+    "{construction_years}-year build · USD, nominal · valued at financial close"
+)
+FIXED_ASSUMPTIONS_HELP = (
+    "These are held constant. Changing plant size wouldn't change LCOE, IRRs or DSCR in this "
+    "model, because costs and output are per kW. PPA term flexibility is planned for v2."
+)
+
 # --- Sidebar --------------------------------------------------------------
 
 COUNTRY_LABEL = "Country"
@@ -39,6 +48,21 @@ SLIDER_LABELS = {
     "debt_rate": "Debt rate (%)",
     "debt_tenor": "Debt tenor (years)",
     "discount_rate": "Discount rate, cost of capital (%)",
+}
+
+# Base case value with its unit, shown first in each slider tooltip.
+BASE_CASE = "Base case: {value}"
+BASE_CASE_FORMATS = {
+    "ppa_tariff": "{:.2f} US cents/kWh",
+    "capex": "{:,.0f} USD/kWac",
+    "fixed_om": "{:g} USD/kWac per year",
+    "specific_yield_year1": "{:,.0f} kWh/kWp",
+    "degradation": "{:g}% per year",
+    "dc_ac_ratio": "{:.2f}",
+    "gearing": "{:.0f}% debt",
+    "debt_rate": "{:.1f}%",
+    "debt_tenor": "{} years",
+    "discount_rate": "{:.1f}%",
 }
 
 # How each input type from data/assumptions.csv is described after its source.
@@ -94,6 +118,22 @@ INPUT_TERMS = [
     ),
 ]
 
+# Glossary terms for the inputs held constant: (term, key, definition).
+FIXED_TERMS = [
+    (
+        "PPA term",
+        "ppa_term",
+        "How long the power purchase agreement runs. The plant is assumed to operate for exactly "
+        "this long.",
+    ),
+    (
+        "Plant size (MWac)",
+        "capacity",
+        "The plant's grid-connection capacity. Costs and output are per kW, so size doesn't change "
+        "the unit economics here.",
+    ),
+]
+
 # Glossary terms for the outputs: (term, key, definition).
 OUTPUT_TERMS = [
     (
@@ -146,6 +186,13 @@ TILE_LABELS = {
     "equity_irr": "Equity IRR",
     "min_dscr": "Minimum DSCR",
 }
+# Caption under the implied cost of capital tile, by the CSV type of the
+# country's base discount rate. UAE's base is a judgment between two sources,
+# so it is not called a published estimate.
+DISCOUNT_RATE_CAPTIONS = {
+    "public": "Published estimate: {rate:.1f}% (Hatton et al. 2026)",
+    "judgment": "Base-case estimate: {rate:.1f}% (judgment between Hatton et al. 2026 and IRENA 2025)",
+}
 AWARDED_TARIFF = "Awarded tariff: {tariff:.2f} US cents/kWh"
 NOT_MEANINGFUL = "n.m."
 NOT_MEANINGFUL_REASONS = {
@@ -154,7 +201,9 @@ NOT_MEANINGFUL_REASONS = {
 }
 NPV_DATE = "At financial close, start of construction"
 VERSUS_BASE = "{difference} vs base"
+MINUS = "\u2212"  # true minus sign for negative numbers
 
 GLOSSARY_TITLE = "What the terms mean"
 GLOSSARY_INPUTS = "Inputs"
+GLOSSARY_FIXED = "Fixed in this model"
 GLOSSARY_OUTPUTS = "Outputs"

@@ -81,8 +81,10 @@ def slider_settings(country: str) -> dict[str, dict]:
             "base": base,
             "low": low,
             "high": high,
-            "help": f"{text.INPUT_DEFINITIONS[slider.parameter]}\n\n"
-            f"{source_text(rows, country, slider.parameter)}",
+            "type": row["type"],
+            "help": text.BASE_CASE.format(value=text.BASE_CASE_FORMATS[slider.parameter].format(base))
+            + f"\n\n{text.INPUT_DEFINITIONS[slider.parameter]}"
+            f"\n\n{source_text(rows, country, slider.parameter)}",
         }
     return settings
 
@@ -104,54 +106,76 @@ def scenario(country: str, overrides: tuple) -> dict:
     results = run_model(inputs)
     return {
         "tariff_cents": inputs.ppa_tariff * 100,
-        "lcoe_cents": results.lcoe_cents_per_kwh,
+        "lcoe": results.lcoe_cents_per_kwh,
         "implied_rate": solve.implied_discount_rate(country, inputs=inputs),
         "project_irr": results.project_irr,
         "equity_irr": results.equity_irr,
         "min_dscr": results.min_dscr,
-        "npv_millions": results.project_npv / 1e6,
+        "npv": results.project_npv / 1e6,
     }
 
 
-# --- Formatting -----------------------------------------------------------
+# --- Tiles ----------------------------------------------------------------
 
 
-def percent(value: float | None) -> str:
-    return text.NOT_MEANINGFUL if value is None else f"{value:.1%}"
+@dataclass(frozen=True)
+class Tile:
+    key: str  # in ui_text.TILE_LABELS and the scenario results
+    scale: float  # multiply the result by this before display
+    decimals: int
+    prefix: str = ""
+    suffix: str = ""
+    delta_unit: str = ""  # unit after the delta; defaults to the value's own
+    higher_is_better: bool = True
 
 
-def change(current: float | None, base: float | None, unit: str, scale: float = 1, decimals: int = 2):
-    """Delta text for a tile, or None when unchanged or not meaningful."""
-    if current is None or base is None:
-        return None
-    difference = (current - base) * scale
-    if round(difference, decimals) == 0:
-        return None
-    return text.VERSUS_BASE.format(difference=f"{difference:+.{decimals}f}{unit}")
+TILES = {
+    tile.key: tile
+    for tile in [
+        Tile("lcoe", 1, 2, higher_is_better=False),
+        Tile("implied_rate", 100, 1, suffix="%", delta_unit=" pp"),
+        Tile("npv", 1, 1, prefix="$", suffix="m"),
+        Tile("project_irr", 100, 1, suffix="%", delta_unit=" pp"),
+        Tile("equity_irr", 100, 1, suffix="%", delta_unit=" pp"),
+        Tile("min_dscr", 1, 2, suffix="x"),
+    ]
+}
 
 
-def millions(value: float) -> str:
-    """USD millions for display, e.g. −$210.8m."""
-    sign = "−" if round(value, 1) < 0 else ""
-    return f"{sign}${abs(value):,.1f}m"
+def signed(value: float, decimals: int, prefix: str = "", suffix: str = "", plus: bool = False) -> str:
+    """A number with a true minus sign, e.g. −$210.8m or −6.3%."""
+    value = round(value, decimals)
+    sign = text.MINUS if value < 0 else ("+" if plus and value > 0 else "")
+    return f"{sign}{prefix}{abs(value):,.{decimals}f}{suffix}"
 
 
-def money_change(current: float, base: float):
-    """Delta text in USD millions. Kept to a plain +/- sign so Streamlit
-    reads the direction: higher NPV is better, so up shows green."""
-    difference = current - base
-    if round(difference, 1) == 0:
-        return None
-    sign = "+" if difference > 0 else "-"
-    return text.VERSUS_BASE.format(difference=f"{sign}${abs(difference):,.1f}m")
-
-
-def tile_help(key: str, value: float | None = 0.0) -> str:
-    """Tooltip for a tile: the definition, plus why the value is n.m. if it is."""
-    help_text = text.OUTPUT_DEFINITIONS[key]
+def show_tile(tile: Tile, current: dict, base: dict) -> None:
+    """One metric tile, with a delta only when the displayed value moved."""
+    value, base_value = current[tile.key], base[tile.key]
+    delta = arrow = colour = None
     if value is None:
-        help_text += f"\n\n{text.NOT_MEANINGFUL_REASONS[key]}"
-    return help_text
+        shown = text.NOT_MEANINGFUL
+    else:
+        shown = signed(value * tile.scale, tile.decimals, tile.prefix, tile.suffix)
+    if value is not None and base_value is not None:
+        # Compare the values as displayed, so a change too small to see shows no delta.
+        difference = round(round(value * tile.scale, tile.decimals) - round(base_value * tile.scale, tile.decimals), tile.decimals)
+        if difference != 0:
+            unit = tile.delta_unit or tile.suffix
+            delta = text.VERSUS_BASE.format(difference=signed(difference, tile.decimals, tile.prefix, unit, plus=True))
+            arrow = "up" if difference > 0 else "down"
+            colour = "green" if (difference > 0) == tile.higher_is_better else "red"
+    help_text = text.OUTPUT_DEFINITIONS[tile.key]
+    if value is None:
+        help_text += f"\n\n{text.NOT_MEANINGFUL_REASONS.get(tile.key, text.NOT_MEANINGFUL)}"
+    st.metric(
+        text.TILE_LABELS[tile.key],
+        shown,
+        delta,
+        delta_color=colour or "normal",
+        delta_arrow=arrow or "auto",
+        help=help_text,
+    )
 
 
 # --- Page -----------------------------------------------------------------
@@ -186,60 +210,40 @@ with st.sidebar:
     st.button(text.RESET_BUTTON, on_click=reset_to_base)
     st.caption(text.RANGES_NOTE)
 
+fixed = load_inputs(country)
+st.caption(
+    text.FIXED_ASSUMPTIONS.format(
+        capacity=fixed.capacity, ppa_term=fixed.ppa_term, construction_years=fixed.construction_years
+    ),
+    help=text.FIXED_ASSUMPTIONS_HELP,
+)
+
 base = scenario(country, ())
 current = scenario(country, tuple(sorted(overrides.items())))
 
 # Top row: what the tariff covers. Bottom row: what investors and lenders get.
 cost_tiles = st.columns(3)
 with cost_tiles[0]:
-    st.metric(
-        text.TILE_LABELS["lcoe"],
-        f"{current['lcoe_cents']:.2f}",
-        change(current["lcoe_cents"], base["lcoe_cents"], ""),
-        delta_color="inverse",
-        help=tile_help("lcoe"),
-    )
+    show_tile(TILES["lcoe"], current, base)
     st.caption(text.AWARDED_TARIFF.format(tariff=current["tariff_cents"]))
 with cost_tiles[1]:
-    st.metric(
-        text.TILE_LABELS["implied_rate"],
-        percent(current["implied_rate"]),
-        change(current["implied_rate"], base["implied_rate"], " pp", 100, 1),
-        help=tile_help("implied_rate"),
-    )
+    show_tile(TILES["implied_rate"], current, base)
+    discount_rate = settings["discount_rate"]
+    st.caption(text.DISCOUNT_RATE_CAPTIONS[discount_rate["type"]].format(rate=discount_rate["base"]))
 with cost_tiles[2]:
-    st.metric(
-        text.TILE_LABELS["npv"],
-        millions(current["npv_millions"]),
-        money_change(current["npv_millions"], base["npv_millions"]),
-        help=tile_help("npv"),
-    )
+    show_tile(TILES["npv"], current, base)
     st.caption(text.NPV_DATE)
 
 return_tiles = st.columns(3)
-with return_tiles[0]:
-    st.metric(
-        text.TILE_LABELS["project_irr"],
-        percent(current["project_irr"]),
-        change(current["project_irr"], base["project_irr"], " pp", 100, 1),
-        help=tile_help("project_irr", current["project_irr"]),
-    )
-with return_tiles[1]:
-    st.metric(
-        text.TILE_LABELS["equity_irr"],
-        percent(current["equity_irr"]),
-        change(current["equity_irr"], base["equity_irr"], " pp", 100, 1),
-        help=tile_help("equity_irr", current["equity_irr"]),
-    )
-with return_tiles[2]:
-    st.metric(
-        text.TILE_LABELS["min_dscr"],
-        f"{current['min_dscr']:.2f}x",
-        change(current["min_dscr"], base["min_dscr"], "x"),
-        help=tile_help("min_dscr"),
-    )
+for column, key in zip(return_tiles, ("project_irr", "equity_irr", "min_dscr")):
+    with column:
+        show_tile(TILES[key], current, base)
 
 with st.expander(text.GLOSSARY_TITLE):
-    for heading, terms in ((text.GLOSSARY_INPUTS, text.INPUT_TERMS), (text.GLOSSARY_OUTPUTS, text.OUTPUT_TERMS)):
+    for heading, terms in (
+        (text.GLOSSARY_INPUTS, text.INPUT_TERMS),
+        (text.GLOSSARY_FIXED, text.FIXED_TERMS),
+        (text.GLOSSARY_OUTPUTS, text.OUTPUT_TERMS),
+    ):
         st.markdown(f"**{heading}**")
         st.markdown("\n".join(f"- **{term}**: {definition}" for term, _, definition in terms))

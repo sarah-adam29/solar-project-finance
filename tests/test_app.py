@@ -32,8 +32,10 @@ def test_sidebar_is_grouped_with_help_text():
     assert [header.value for header in app.sidebar.subheader] == [header for header, _, _ in text.GROUPS]
     assert [slider.label for slider in app.sidebar.slider] == [text.SLIDER_LABELS[p] for p in SIDEBAR_ORDER]
     for slider in app.sidebar.slider:
-        assert slider.help.startswith(text.INPUT_DEFINITIONS[slider.key])
-        assert "\n\nSource: " in slider.help
+        base_case, definition, source = slider.help.split("\n\n")
+        assert base_case.startswith("Base case: ")
+        assert definition == text.INPUT_DEFINITIONS[slider.key]
+        assert source.startswith("Source: ")
 
 
 def test_moving_a_slider_shows_a_change_and_reset_restores_base():
@@ -56,3 +58,24 @@ def test_npv_is_in_usd_millions_and_a_higher_npv_shows_green():
     npv = app.metric[list(text.TILE_LABELS).index("npv")]
     assert npv.delta.startswith("+$")
     assert (npv.proto.direction, npv.proto.color) == (npv.proto.UP, npv.proto.GREEN)
+
+
+@pytest.mark.parametrize("country, ppa_term", [("KSA", 35), ("UAE", 30)])
+def test_fixed_assumptions_follow_the_country(country, ppa_term):
+    app = run_app(country)
+    assert f"1,000 MWac plant · {ppa_term}-year PPA · 2-year build" in app.caption[0].value
+
+
+def test_negative_numbers_use_a_true_minus_sign():
+    app = run_app("KSA")
+    values = {metric.label: metric.value for metric in app.metric}
+    assert values[text.TILE_LABELS["equity_irr"]] == "\u22123.0%"
+    assert "-" not in "".join(values.values())
+
+
+def test_a_change_too_small_to_display_shows_no_delta():
+    app = run_app("KSA")
+    app.sidebar.slider(key="specific_yield_year1").set_value(2421.0).run()
+    dscr = app.metric[list(text.TILE_LABELS).index("min_dscr")]
+    assert dscr.value == "0.79x"
+    assert not dscr.delta
