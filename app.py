@@ -5,6 +5,7 @@ All user-facing wording lives in ui_text.py.
 """
 
 from dataclasses import dataclass, replace
+from urllib.parse import urlparse
 
 import numpy as np
 import pandas as pd
@@ -70,11 +71,14 @@ def slider_settings(country: str) -> dict[str, dict]:
         row = rows.loc[(country, slider.parameter)]
         base, low, high = row["base"], row["low"], row["high"]
         # Widen a one-sided range by mirroring the other side, so the slider
-        # can move both ways from the base case.
+        # can move both ways from the base case. Method lists each one.
+        widened = []
         if low == base:
             low = round(base - (high - base), 6)
+            widened.append(("low", row["low"], low))
         if high == base:
             high = round(base + (base - low), 6)
+            widened.append(("high", row["high"], high))
         if slider.format == "%d":
             base, low, high = int(base), int(low), int(high)
         else:
@@ -84,6 +88,8 @@ def slider_settings(country: str) -> dict[str, dict]:
             "low": low,
             "high": high,
             "type": row["type"],
+            "unit": row["unit"],
+            "widened": widened,
             "help": text.BASE_CASE.format(value=text.BASE_CASE_FORMATS[slider.parameter].format(base))
             + f"\n\n{text.INPUT_DEFINITIONS[slider.parameter]}"
             f"\n\n{source_text(rows, country, slider.parameter)}",
@@ -492,6 +498,82 @@ def tariff_chart(current: dict, tariffs: dict, targets: dict, tariff_changed: bo
     return fig
 
 
+# --- Detail: cash flows, method, sources -----------------------------------
+
+
+@st.cache_data
+def cash_flow_table(country: str, overrides: tuple) -> pd.DataFrame:
+    """The engine's annual table, one row per line item and one column per year, in display units."""
+    inputs = overrides_inputs(country, overrides)
+    table = run_model(inputs).table
+    scales = {"usd": 1e-6, "gwh": 1e-3, "ratio": 1, "factor": 1}
+    columns = [
+        text.BUILD_YEAR.format(year=period) if row.construction else text.OPERATING_YEAR.format(year=row.operating_year)
+        for period, row in table.iterrows()
+    ]
+    rows = {label: table[column].to_numpy() * scales[unit] for column, label, unit in text.CASH_FLOW_ROWS}
+    return pd.DataFrame.from_dict(rows, orient="index", columns=columns)
+
+
+def styled_cash_flows(table: pd.DataFrame):
+    """One decimal for money and energy, two for DSCR, four for discount factors; true minus signs."""
+    decimals = {label: {"ratio": 2, "factor": 4}.get(unit, 1) for _, label, unit in text.CASH_FLOW_ROWS}
+    styler = table.style
+    for label, places in decimals.items():
+        styler = styler.format(
+            lambda v, places=places: "" if pd.isna(v) else signed(v, places),
+            subset=pd.IndexSlice[[label], :],
+        )
+    return styler
+
+
+@st.cache_data
+def method_text(checks: int) -> str:
+    """Method and limitations, built from the CSV so it stays in step with the inputs."""
+    csv = pd.read_csv(ASSUMPTIONS_CSV)
+    inputs = {country: load_inputs(country) for country in COUNTRIES}
+    ksa = inputs["KSA"]
+    facts = {
+        "construction_years": ksa.construction_years,
+        "phase_y1": ksa.capex_phase_y1 * 100,
+        "phase_y2": ksa.capex_phase_y2 * 100,
+        "ppa_terms": ", ".join(f"{c} {inputs[c].ppa_term} years" for c in COUNTRIES),
+        "conflict_bp": ksa.conflict_premium * 10000,
+        "severe_bp": ksa.severe_premium * 10000,
+        "capacity": ksa.capacity,
+        "checks": checks,
+    }
+
+    judgment = csv[csv["type"].isin(["judgment", "invented"])]
+    judgment_items = []
+    for parameter, rows in judgment.groupby("parameter", sort=False):
+        countries = " and ".join(sorted(rows["country"]))
+        types = " / ".join(sorted(set(rows["type"])))
+        judgment_items.append(text.METHOD_JUDGMENT_ITEM.format(
+            name=text.PARAMETER_NAMES.get(parameter, parameter), countries=countries, type=types))
+
+    widened_items = []
+    for country in COUNTRIES:
+        for parameter, setting in slider_settings(country).items():
+            for end, csv_value, slider_value in setting["widened"]:
+                widened_items.append(text.METHOD_WIDENED_ITEM.format(
+                    country=country, name=text.PARAMETER_NAMES[parameter], end=text.METHOD_WIDENED_ENDS[end],
+                    csv=f"{csv_value:g}", slider=f"{slider_value:g}", unit=setting["unit"]))
+    return text.method_markdown(facts, judgment_items, widened_items)
+
+
+@st.cache_data
+def source_items() -> list[str]:
+    """Each source URL in the CSV once, with the inputs it supports."""
+    csv = pd.read_csv(ASSUMPTIONS_CSV).dropna(subset=["source_url"])
+    items = []
+    for url, rows in csv.groupby("source_url", sort=False):
+        site = urlparse(url).netloc.removeprefix("www.").removeprefix("www2.")
+        names = list(dict.fromkeys(text.PARAMETER_NAMES.get(p, p) for p in rows["parameter"]))
+        items.append(text.SOURCE_ITEM.format(site=site, url=url, inputs=", ".join(names)))
+    return items
+
+
 # --- Page -----------------------------------------------------------------
 
 st.title(text.TITLE)
@@ -554,6 +636,8 @@ for column, key in zip(return_tiles, ("project_irr", "equity_irr", "min_dscr")):
     with column:
         show_tile(TILES[key], current, base)
 
+st.caption(text.TRUST_LINE.format(checks=text.ANSWER_KEY_CHECKS))
+
 with st.expander(text.GLOSSARY_TITLE):
     for heading, terms in (
         (text.GLOSSARY_INPUTS, text.INPUT_TERMS),
@@ -602,6 +686,26 @@ with tariff_column:
         tariff_chart(current, required_tariffs(country, override_key), fixed_targets, tariff_changed),
         **chart_options,
     )
+
+# --- Detail ---------------------------------------------------------------
+
+with st.expander(text.CASH_FLOWS_TITLE):
+    st.caption(text.CASH_FLOWS_CAPTION)
+    cash_flows = cash_flow_table(country, override_key)
+    st.dataframe(styled_cash_flows(cash_flows))
+    st.download_button(
+        text.CASH_FLOWS_DOWNLOAD,
+        cash_flows.round(6).to_csv(index_label="USD millions unless stated").encode("utf-8"),
+        file_name=text.CASH_FLOWS_FILE.format(country=country),
+        mime="text/csv",
+    )
+
+with st.expander(text.METHOD_TITLE):
+    st.markdown(method_text(text.ANSWER_KEY_CHECKS))
+
+st.subheader(text.SOURCES_HEADING)
+st.caption(text.SOURCES_INTRO)
+st.markdown("\n".join(source_items()))
 
 # --- Footer ---------------------------------------------------------------
 

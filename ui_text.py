@@ -309,3 +309,156 @@ TARIFF_BARS = {
 }
 # Value at the end of each target bar, with its uplift on the awarded tariff.
 TARIFF_VALUE_WITH_UPLIFT = "{value} ({uplift})"
+
+# --- Trust line -----------------------------------------------------------
+
+# Number of answer-key values the tests compare (tests/test_app.py checks it
+# against tests/test_answer_key.py, so update both together).
+ANSWER_KEY_CHECKS = 92
+TRUST_LINE = "Python engine verified against a hand-built Excel model: {checks} checks within 0.1%"
+
+# --- Annual cash flows ----------------------------------------------------
+
+CASH_FLOWS_TITLE = "Annual cash flows"
+CASH_FLOWS_CAPTION = (
+    "USD millions, nominal, unless stated. One column per year: two build years, then the "
+    "operating years. Inputs as set in the sidebar."
+)
+CASH_FLOWS_DOWNLOAD = "Download as CSV"
+CASH_FLOWS_FILE = "solar_cash_flows_{country}.csv"
+BUILD_YEAR = "Build {year}"
+OPERATING_YEAR = "Year {year}"
+# Engine table columns, in display order: (column, label, unit). Unit "usd" is
+# shown in USD millions; the others are shown as they are.
+CASH_FLOW_ROWS = [
+    ("capex_spend", "Capex spend", "usd"),
+    ("debt_drawdown", "Debt drawdown", "usd"),
+    ("equity_contribution", "Equity contribution", "usd"),
+    ("capitalised_interest", "Interest during construction (added to the loan)", "usd"),
+    ("generation_mwh", "Generation (GWh)", "gwh"),
+    ("revenue", "Revenue", "usd"),
+    ("om_cost", "O&M cost", "usd"),
+    ("ebitda", "EBITDA", "usd"),
+    ("depreciation", "Depreciation", "usd"),
+    ("taxable_income", "Taxable income", "usd"),
+    ("tax", "Tax", "usd"),
+    ("unlevered_taxable_income", "Taxable income without debt (for project IRR)", "usd"),
+    ("unlevered_tax", "Tax without debt (for project IRR)", "usd"),
+    ("opening_balance", "Opening debt balance", "usd"),
+    ("interest_paid", "Interest paid", "usd"),
+    ("principal_repaid", "Principal repaid", "usd"),
+    ("debt_service", "Debt service", "usd"),
+    ("closing_balance", "Closing debt balance", "usd"),
+    ("cfads", "Cash flow available for debt service (CFADS)", "usd"),
+    ("dscr", "DSCR (x)", "ratio"),
+    ("equity_cash_flow", "Equity cash flow", "usd"),
+    ("project_cash_flow", "Project cash flow (after tax, before debt)", "usd"),
+    ("discount_factor", "Discount factor", "factor"),
+]
+
+# --- Method and limitations -----------------------------------------------
+
+METHOD_TITLE = "Method and limitations"
+REPO_URL = "https://github.com/sarah-adam29/solar-project-finance"
+ANSWER_KEY_URL = f"{REPO_URL}/blob/main/excel/solar_answer_key.xlsx"
+
+# Readable names for every input in data/assumptions.csv.
+PARAMETER_NAMES = {
+    "capacity": "Plant size",
+    "dc_ac_ratio": "DC/AC ratio",
+    "specific_yield_year1": "Specific yield",
+    "degradation": "Degradation",
+    "construction_years": "Construction period",
+    "capex_phase_y1": "Capex spent in build year 1",
+    "capex_phase_y2": "Capex spent in build year 2",
+    "capex": "Capex",
+    "fixed_om": "Fixed O&M",
+    "ppa_tariff": "PPA tariff",
+    "ppa_term": "PPA term",
+    "gearing": "Gearing",
+    "debt_tenor": "Debt tenor",
+    "debt_rate": "Debt rate",
+    "discount_rate": "Discount rate",
+    "project_life": "Project life",
+    "target_equity_irr": "Target equity IRR",
+    "target_min_dscr": "Target minimum DSCR",
+    "conflict_premium": "Conflict premium",
+    "severe_premium": "Severe premium",
+    "corporate_income_tax": "KSA income tax",
+    "zakat": "Zakat",
+    "foreign_ownership_share": "Foreign ownership share",
+    "corporate_tax": "UAE corporate tax",
+    "uae_tax_threshold": "UAE tax threshold",
+    "aed_per_usd": "AED per USD",
+}
+
+METHOD_HOW = """**How the model works**
+
+- **Timeline.** Annual periods. Period 1 is financial close, when the loans are signed and construction starts. Construction takes {construction_years} years, with {phase_y1:.0f}% of capex spent in the first year and {phase_y2:.0f}% in the second. The plant then runs for the PPA term: {ppa_terms}.
+- **Funding.** During construction, capex is paid by debt and equity in proportion to the gearing. Interest during construction is added to the loan.
+- **Debt.** The loan is repaid as an annuity (equal yearly payments of interest plus principal) over the debt tenor. The payment is worked out once, on the balance at the commercial operation date (COD).
+- **Revenue and costs.** Generation is plant size × DC/AC ratio × specific yield, falling each year by the degradation rate. Revenue is generation × tariff. The tariff and O&M are flat in nominal terms.
+- **Tax.** KSA: 20% income tax on the foreign-owned share of taxable profit and 2.5% zakat on the Saudi share (v1 applies zakat to profit). UAE: 9% corporate tax on taxable income above AED 375,000. Depreciation is straight-line over the project life, on capex plus capitalised interest.
+- **LCOE.** Discounted capex plus discounted O&M, divided by discounted generation, at the discount rate. It excludes tax and financing structure.
+- **Returns.** Project IRR uses cash flows after tax and before debt, with tax worked out as if there were no debt. Equity IRR uses cash flows to shareholders after debt service and tax. NPV discounts project cash flows to financial close, with each year's cash flow at the end of that year.
+- **Solve-fors.** The implied cost of capital is the discount rate at which the LCOE equals the tariff. The tariffs for the equity IRR and DSCR targets are found the same way, by searching for the value that hits the target.
+- **Sensitivities and scenarios.** The tornado moves one input at a time to the low and high end of its source range, with everything else as set in the sidebar. The conflict and severe scenarios add {conflict_bp:.0f}bp and {severe_bp:.0f}bp to the discount rate.
+- **Checks.** The Python engine is tested against a hand-built Excel model: {checks} values must match within 0.1%."""
+
+METHOD_FIXED = """**Fixed in this model**
+
+The plant size ({capacity:,.0f} MWac) is an invented reference size so the two countries compare like for like. Costs and output are per kW, so it doesn't change LCOE, IRRs or DSCR; it only scales NPV and the cash-flow table."""
+
+METHOD_JUDGMENT_HEADING = "**Judgment and invented inputs**"
+METHOD_JUDGMENT_INTRO = (
+    "Every input in data/assumptions.csv is labelled public, derived, judgment or invented. "
+    "These are the author's own judgment or invented:"
+)
+METHOD_JUDGMENT_ITEM = "- {name} ({countries}): {type}"
+
+METHOD_WIDENED_HEADING = "**Slider ranges**"
+METHOD_WIDENED_INTRO = (
+    "Each slider runs from the low to the high value in data/assumptions.csv. Where the source "
+    "range starts or ends at the base case, the slider is widened by mirroring the other side, so "
+    "it can move both ways from the base case:"
+)
+METHOD_WIDENED_ITEM = "- {country} {name}: {end} end widened from {csv} to {slider} {unit}"
+METHOD_WIDENED_ENDS = {"low": "low", "high": "high"}
+
+METHOD_LIMITATIONS = """**Limitations (v1)**
+
+- Flat tariff and O&M.
+- All capacity reaches COD together (no phased COD).
+- Pro-rata debt/equity funding during construction.
+- Interest during construction capitalised into debt.
+- No DSRA.
+- No tax-loss carry-forward.
+- Zakat approximated as 2.5% of profit.
+- Construction period fixed at 2 years."""
+
+METHOD_LINKS = f"""**Code and answer key**
+
+- [GitHub repository]({REPO_URL})
+- [Excel answer key]({ANSWER_KEY_URL})"""
+
+METHOD_DISCLAIMER_HEADING = "**Disclaimer**"
+
+
+def method_markdown(facts: dict, judgment_items: list[str], widened_items: list[str]) -> str:
+    """The Method and limitations text, shared by the app and the README."""
+    return "\n\n".join([
+        METHOD_HOW.format(**facts),
+        METHOD_FIXED.format(**facts),
+        "\n".join([METHOD_JUDGMENT_HEADING, "", METHOD_JUDGMENT_INTRO, "", *judgment_items]),
+        "\n".join([METHOD_WIDENED_HEADING, "", METHOD_WIDENED_INTRO, "", *widened_items]),
+        METHOD_LIMITATIONS,
+        METHOD_LINKS,
+        "\n".join([METHOD_DISCLAIMER_HEADING, "", DISCLAIMER]),
+    ])
+
+
+# --- Sources --------------------------------------------------------------
+
+SOURCES_HEADING = "Sources"
+SOURCES_INTRO = "Every source URL in data/assumptions.csv, with the inputs it supports."
+SOURCE_ITEM = "- [{site}]({url}): {inputs}"

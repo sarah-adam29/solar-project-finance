@@ -1,6 +1,7 @@
-"""Smoke test: the Streamlit app runs for each country and shows its tiles."""
+"""Smoke tests: the Streamlit app runs for each country and shows what it should."""
 
 import json
+import sys
 from pathlib import Path
 
 import pytest
@@ -9,6 +10,7 @@ from streamlit.testing.v1 import AppTest
 import ui_text as text
 
 APP = str(Path(__file__).resolve().parent.parent / "app.py")
+sys.path.insert(0, str(Path(__file__).resolve().parent))  # for importing test_answer_key
 SIDEBAR_ORDER = [parameter for _, _, parameters in text.GROUPS for parameter in parameters]
 
 
@@ -126,3 +128,47 @@ def test_readme_carries_the_disclaimer_word_for_word():
     readme = (Path(APP).parent / "README.md").read_text()
     assert f"> [!IMPORTANT]\n> {text.DISCLAIMER}" in readme
     assert f"## Disclaimer and feedback\n{text.DISCLAIMER}" in readme
+
+
+def test_trust_line_count_matches_the_answer_key_tests():
+    import test_answer_key
+
+    compared = [check for check in test_answer_key.CHECKS if test_answer_key.excel(check[0], check[1]) is not None]
+    assert text.ANSWER_KEY_CHECKS == len(compared)
+    app = run_app("KSA")
+    expected = text.TRUST_LINE.format(checks=len(compared))
+    assert any(caption.value == expected for caption in app.main.caption)
+
+
+@pytest.mark.parametrize("country", ["KSA", "UAE"])
+def test_detail_sections_show(country):
+    app = run_app(country)
+    labels = [expander.label for expander in app.expander]
+    assert labels == [text.GLOSSARY_TITLE, text.CASH_FLOWS_TITLE, text.METHOD_TITLE]
+    table = app.dataframe[0].value
+    assert list(table.index) == [label for _, label, _ in text.CASH_FLOW_ROWS]
+    assert list(table.columns[:3]) == ["Build 1", "Build 2", "Year 1"]
+    assert len(app.get("download_button")) == 1
+    method = app.expander[2].markdown[0].value
+    assert text.DISCLAIMER in method
+    assert "Debt tenor: " in method and "widened from" in method
+
+
+def test_sources_list_each_csv_url_once():
+    import pandas as pd
+
+    from model.inputs import ASSUMPTIONS_CSV
+
+    urls = pd.read_csv(ASSUMPTIONS_CSV)["source_url"].dropna().unique()
+    app = run_app("KSA")
+    sources = next(m.value for m in app.main.markdown if m.value.startswith("- ["))
+    assert len(sources.splitlines()) == len(urls)
+    assert all(f"]({url})" in sources for url in urls)
+
+
+def test_no_emoji_in_app_text():
+    import re
+
+    emoji = re.compile("[\U0001F000-\U0001FAFF☀-➿️]")
+    for path in ("app.py", "ui_text.py"):
+        assert not emoji.search((Path(APP).parent / path).read_text()), path
