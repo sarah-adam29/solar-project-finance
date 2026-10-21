@@ -22,6 +22,9 @@ over clever code.
 - Python results must match the Excel answer key within 0.1%, checked by tests.
 - Engine changes must keep tests/test_answer_key.py passing; the Excel answer key is the reference.
 - Use uv: `uv add` for packages, `uv run` to run code and tests.
+- Streamlit Community Cloud installs from `requirements.txt`. Re-export it
+  whenever dependencies change:
+  `uv export --no-dev --no-hashes --format requirements-txt > requirements.txt`
 - Small commits with plain-English messages.
 - The v2 backlog lives in GitHub Issues (label: v2). Check open v2 issues before starting model changes.
 - Every public output (app, README, charts) carries the disclaimer in ui_text.py; never remove or shorten it.
