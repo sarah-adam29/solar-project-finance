@@ -191,7 +191,7 @@ TILE_LABELS = {
 # so it is not called a published estimate.
 DISCOUNT_RATE_CAPTIONS = {
     "public": "Published estimate: {rate:.1f}% (Hatton et al. 2026)",
-    "judgment": "Base-case estimate: {rate:.1f}% (judgment between Hatton et al. 2026 and IRENA 2025)",
+    "judgment": "Base-case estimate: {rate:.1f}% (judgment)",
 }
 AWARDED_TARIFF = "Awarded tariff: {tariff:.2f} US cents/kWh"
 NOT_MEANINGFUL = "n.m."
@@ -199,7 +199,7 @@ NOT_MEANINGFUL_REASONS = {
     "project_irr": "n.m.: the project never pays back.",
     "equity_irr": "n.m.: equity is never paid back.",
 }
-NPV_DATE = "At financial close, start of construction"
+NPV_DATE = "Valued at financial close, covering all cash flows to the end of the PPA"
 VERSUS_BASE = "{difference} vs base"
 MINUS = "\u2212"  # true minus sign for negative numbers
 
@@ -207,3 +207,85 @@ GLOSSARY_TITLE = "What the terms mean"
 GLOSSARY_INPUTS = "Inputs"
 GLOSSARY_FIXED = "Fixed in this model"
 GLOSSARY_OUTPUTS = "Outputs"
+
+# --- Charts ---------------------------------------------------------------
+
+# The finding: LCOE across discount rates against the tariff.
+FINDING_TITLE = "Awarded tariffs only cover costs at about {rate}"
+FINDING_TITLE_CHANGED_TARIFF = "A {tariff:.2f}-cent tariff covers costs at about {rate}"
+FINDING_TITLE_NO_CROSSING = "The tariff and the LCOE line don't cross at any cost of capital the model can test"
+FINDING_CAPTION = (
+    "The line is the LCOE at each cost of capital, with every other input as set in the sidebar. "
+    "Where it crosses the tariff is the return the tariff actually pays for."
+)
+FINDING_X_AXIS = "Cost of capital (discount rate)"
+FINDING_Y_AXIS = "US cents/kWh"
+FINDING_LCOE_LINE = "LCOE"
+FINDING_TARIFF_LINE = "Awarded tariff: {tariff:.2f}"
+FINDING_TARIFF_LINE_CHANGED = "Tariff: {tariff:.2f}"
+FINDING_CROSSING = "Implied cost of capital: {rate}"
+# Discount-rate scenarios marked on the LCOE line: premium in bp, then LCOE.
+FINDING_SCENARIOS = {
+    "conflict": "Conflict +{bp:.0f}bp: {lcoe}",
+    "severe": "Severe +{bp:.0f}bp: {lcoe}",
+}
+FINDING_SCENARIO_NOTE = (
+    "The two marked points add the conflict (+{conflict:.0f}bp) and severe (+{severe:.0f}bp) "
+    "premiums to the discount rate set in the sidebar (judgment)."
+)
+# Shaded discount-rate range from the CSV, by the type of the country's base rate.
+FINDING_BAND = {
+    "public": "Published estimates",
+    "judgment": "Estimates (judgment)",
+}
+FINDING_BAND_BASE = "base {rate}"
+
+# Tornado: which inputs move the answer most.
+TORNADO_TITLE = "Which assumptions move the answer most"
+TORNADO_MEASURE_LABEL = "Measure"
+TORNADO_MEASURES = {"lcoe": "LCOE", "equity_irr": "Equity IRR"}
+TORNADO_CAPTION = (
+    "Each bar shows the {measure} with one input at the low or high end of its source range, "
+    "everything else as set in the sidebar. The label at each bar end is the input value that "
+    "produced it. Sorted by total swing."
+)
+TORNADO_TOP_NOTE = (
+    "Top {shown} of {total} drivers. Debt rate and gearing don't affect LCOE in this model."
+)
+TORNADO_IMPROVES = "Improves the project"
+TORNADO_WORSENS = "Worsens the project"
+TORNADO_BASE_LINE = {"base": "Base case: {value}", "changed": "Your inputs: {value}"}
+TORNADO_AXIS = {"lcoe": "LCOE (US cents/kWh)", "equity_irr": "Equity IRR"}
+TORNADO_NO_BASE = "Equity IRR can't be calculated for these inputs (equity is never paid back), so there is no tornado to show."
+# Engine driver names -> chart labels.
+TORNADO_DRIVERS = {
+    "Capex": "Capex",
+    "Discount rate": "Discount rate (cost of capital)",
+    "Specific yield": "Specific yield",
+    "Debt rate": "Debt rate",
+    "Fixed O&M": "Fixed O&M",
+    "Gearing": "Gearing",
+    "Degradation": "Degradation",
+    "DC/AC ratio": "DC/AC ratio",
+}
+# Input value at each bar end, after the app converts it to display units.
+TORNADO_INPUT_FORMATS = {
+    "Capex": "${:,.0f}/kW",
+    "Discount rate": "{:.1f}%",
+    "Specific yield": "{:,.0f} kWh/kWp",
+    "Debt rate": "{:.1f}%",
+    "Fixed O&M": "${:g}/kW/yr",
+    "Gearing": "{:.0f}% debt",
+    "Degradation": "{:g}%/yr",
+    "DC/AC ratio": "{:.2f}",
+}
+
+# Tariff investors would need.
+TARIFF_TITLE = "What tariff would investors need?"
+TARIFF_CAPTION = "US cents/kWh needed to reach each target, with every other input as set in the sidebar."
+TARIFF_BARS = {
+    "tariff": "Awarded tariff",
+    "tariff_changed": "Tariff (your input)",
+    "equity_irr": "For a {target:.0f}% equity IRR",
+    "min_dscr": "For a {target:.2f}× minimum DSCR",
+}
