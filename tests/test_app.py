@@ -172,3 +172,10 @@ def test_no_emoji_in_app_text():
     emoji = re.compile("[\U0001F000-\U0001FAFF☀-➿️]")
     for path in ("app.py", "ui_text.py"):
         assert not emoji.search((Path(APP).parent / path).read_text()), path
+
+
+def test_readme_method_matches_the_app():
+    app = run_app("KSA")
+    method = app.expander[2].markdown[0].value
+    readme = (Path(APP).parent / "README.md").read_text()
+    assert f"## Method\n{method}\n" in readme
