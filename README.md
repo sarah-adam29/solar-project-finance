@@ -3,10 +3,12 @@
 > [!IMPORTANT]
 > Personal learning project, not investment advice. I built this model myself from public sources to learn project finance modelling and Python. It has not been reviewed or validated by industry experts, developers, lenders or other market participants, and its results may be wrong. Please don't use it for investment, lending or policy decisions. If you have better data or spot an error, I'd be glad to hear from you: [open an issue on GitHub](https://github.com/sarah-adam29/solar-project-finance/issues) or [message me on LinkedIn](https://www.linkedin.com/in/sarah-adam-a24949b1/).
 
+Live app: https://gulf-solar-tariffs.streamlit.app/
+
 > Work in progress: this README is a skeleton. Sections marked _To do_ will be
 > filled in as the model is built.
 
-Live app: [link to be added]
+Live app: https://gulf-solar-tariffs.streamlit.app/
 
 ## Overview
 A project finance model for utility-scale solar PV in Saudi Arabia (KSA) and
