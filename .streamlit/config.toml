@@ -1,0 +1,11 @@
+[theme]
+base = "light"
+primaryColor = "#58276B"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F7F4F8"
+textColor = "#141B26"
+# Streamlit 1.65 spells this "sans-serif" (older versions used "sans serif").
+font = "sans-serif"
+# Smaller than the 2.25rem default so values like −$213.5m fit three tiles to a row
+# at laptop widths with the sidebar open.
+metricValueFontSize = "1.9rem"
