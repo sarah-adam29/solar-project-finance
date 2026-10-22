@@ -8,8 +8,6 @@ Live app: https://gulf-solar-tariffs.streamlit.app/
 > Work in progress: this README is a skeleton. Sections marked _To do_ will be
 > filled in as the model is built.
 
-Live app: https://gulf-solar-tariffs.streamlit.app/
-
 ## Overview
 A project finance model for utility-scale solar PV in Saudi Arabia (KSA) and
 the United Arab Emirates (UAE), delivered as a Streamlit web app. It takes a
