@@ -145,9 +145,11 @@ def test_detail_sections_show(country):
     app = run_app(country)
     labels = [expander.label for expander in app.expander]
     assert labels == [text.GLOSSARY_TITLE, text.CASH_FLOWS_TITLE, text.METHOD_TITLE]
-    table = app.dataframe[0].value
-    assert list(table.index) == [label for _, label, _ in text.CASH_FLOW_ROWS]
-    assert list(table.columns[:3]) == ["Build 1", "Build 2", "Year 1"]
+    table = app.get("html")[0].proto.body
+    for section in list(text.STATEMENT_SECTIONS.values())[:-1]:  # LCOE workings hidden by default
+        assert f">{section}<" in table
+    assert f">{text.STATEMENT_SECTIONS['lcoe']}<" not in table
+    assert ">Y1 build<" in table and ">Y3 (op 1)<" in table
     assert len(app.get("download_button")) == 1
     method = app.expander[2].markdown[0].value
     assert text.DISCLAIMER in method
@@ -179,3 +181,14 @@ def test_readme_method_matches_the_app():
     method = app.expander[2].markdown[0].value
     readme = (Path(APP).parent / "README.md").read_text()
     assert f"## Method\n{method}\n" in readme
+
+
+def test_cash_flow_view_and_lcoe_toggle():
+    app = run_app("KSA")
+    key_years = app.get("html")[0].proto.body
+    app.radio(key="cash_flow_view").set_value("all").run()
+    app.checkbox(key="show_lcoe_workings").check().run()
+    assert not app.exception
+    all_years = app.get("html")[0].proto.body
+    assert all_years.count("<th>Y") == 37 > key_years.count("<th>Y") == 9
+    assert f">{text.STATEMENT_SECTIONS['lcoe']}<" in all_years

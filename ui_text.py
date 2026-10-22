@@ -321,40 +321,74 @@ TRUST_LINE = "Python engine verified against a hand-built Excel model: {checks} 
 
 CASH_FLOWS_TITLE = "Annual cash flows"
 CASH_FLOWS_CAPTION = (
-    "USD millions, nominal, unless stated. One column per year: two build years, then the "
-    "operating years. Inputs as set in the sidebar."
+    "USD millions, nominal, unless stated. Money out is negative. The Total column covers all "
+    "years. Inputs as set in the sidebar."
 )
-CASH_FLOWS_DOWNLOAD = "Download as CSV"
+CASH_FLOWS_VIEW_LABEL = "Years shown"
+CASH_FLOWS_VIEWS = {"key": "Key years", "all": "All years"}
+CASH_FLOWS_LCOE_TOGGLE = "Show LCOE workings"
+CASH_FLOWS_DOWNLOAD = "Download all years as CSV"
 CASH_FLOWS_FILE = "solar_cash_flows_{country}.csv"
-BUILD_YEAR = "Build {year}"
-OPERATING_YEAR = "Year {year}"
-# Engine table columns, in display order: (column, label, unit). Unit "usd" is
-# shown in USD millions; the others are shown as they are.
-CASH_FLOW_ROWS = [
-    ("capex_spend", "Capex spend", "usd"),
-    ("debt_drawdown", "Debt drawdown", "usd"),
-    ("equity_contribution", "Equity contribution", "usd"),
-    ("capitalised_interest", "Interest during construction (added to the loan)", "usd"),
-    ("generation_mwh", "Generation (GWh)", "gwh"),
-    ("revenue", "Revenue", "usd"),
-    ("om_cost", "O&M cost", "usd"),
-    ("ebitda", "EBITDA", "usd"),
-    ("depreciation", "Depreciation", "usd"),
-    ("taxable_income", "Taxable income", "usd"),
-    ("tax", "Tax", "usd"),
-    ("unlevered_taxable_income", "Taxable income without debt (for project IRR)", "usd"),
-    ("unlevered_tax", "Tax without debt (for project IRR)", "usd"),
-    ("opening_balance", "Opening debt balance", "usd"),
-    ("interest_paid", "Interest paid", "usd"),
-    ("principal_repaid", "Principal repaid", "usd"),
-    ("debt_service", "Debt service", "usd"),
-    ("closing_balance", "Closing debt balance", "usd"),
-    ("cfads", "Cash flow available for debt service (CFADS)", "usd"),
-    ("dscr", "DSCR (x)", "ratio"),
-    ("equity_cash_flow", "Equity cash flow", "usd"),
-    ("project_cash_flow", "Project cash flow (after tax, before debt)", "usd"),
-    ("discount_factor", "Discount factor", "factor"),
-]
+CASH_FLOWS_LINE_HEADER = "Line"
+CASH_FLOWS_TOTAL_HEADER = "Total"
+CASH_FLOWS_CSV_COLUMNS = ("Section", "Line", "Unit")
+BUILD_YEAR = "Y{period} build"
+OPERATING_YEAR = "Y{period} (op {year})"
+
+# Statement sections, in display order.
+STATEMENT_SECTIONS = {
+    "operations": "Operations",
+    "funding": "Construction and funding",
+    "debt": "Debt",
+    "tax": "Tax",
+    "cover": "Cash flow and debt cover",
+    "returns": "Returns",
+    "lcoe": "LCOE workings",
+}
+# Statement lines: key -> label. The country's tax line is chosen by country.
+STATEMENT_LINES = {
+    "generation": "Generation (GWh)",
+    "tariff": "Tariff (US cents/kWh)",
+    "revenue": "Revenue",
+    "fixed_om": "Fixed O&M",
+    "ebitda": "EBITDA",
+    "capex": "Capex",
+    "funded_by_debt": "Funded by debt",
+    "funded_by_equity": "Funded by equity",
+    "capitalised_interest": "Interest during construction (capitalised)",
+    "total_debt_drawn": "Total debt drawn",
+    "opening_balance": "Opening balance",
+    "drawdowns": "Drawdowns incl. capitalised interest",
+    "interest_paid": "Interest paid",
+    "principal_repaid": "Principal repaid",
+    "closing_balance": "Closing balance",
+    "depreciation": "Depreciation",
+    "taxable_income": "Taxable income",
+    "unlevered_tax": "Unlevered tax (for project returns)",
+    "tax_paid": "Tax paid",
+    "cfads": "CFADS",
+    "debt_service": "Debt service",
+    "dscr": "DSCR (x)",
+    "equity_contribution": "Equity contribution",
+    "equity_cash_flow": "Equity cash flow",
+    "project_cash_flow": "Project cash flow",
+    "discount_factor": "Discount factor",
+    "discounted_capex": "Discounted capex",
+    "discounted_om": "Discounted O&M",
+    "discounted_generation": "Discounted generation (GWh)",
+}
+COUNTRY_TAX_LINES = {"KSA": "KSA income tax and zakat", "UAE": "UAE corporate tax"}
+# Repeated lines in the cash flow section.
+CASH_FLOW_EBITDA = "EBITDA"
+CASH_FLOW_TAX = "Tax"
+# Units in the CSV download.
+STATEMENT_UNITS = {
+    "usd": "USD m",
+    "gwh": "GWh",
+    "cents": "US cents/kWh",
+    "ratio": "x",
+    "factor": "factor",
+}
 
 # --- Method and limitations -----------------------------------------------
 

@@ -12,6 +12,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
+import statement
 import ui_text as text
 from model import solve
 from model.engine import run_model
@@ -502,29 +503,15 @@ def tariff_chart(current: dict, tariffs: dict, targets: dict, tariff_changed: bo
 
 
 @st.cache_data
-def cash_flow_table(country: str, overrides: tuple) -> pd.DataFrame:
-    """The engine's annual table, one row per line item and one column per year, in display units."""
+def cash_flow_statement(country: str, overrides: tuple) -> dict:
+    """The engine's annual table as a grouped statement, with its column labels and key years."""
     inputs = overrides_inputs(country, overrides)
-    table = run_model(inputs).table
-    scales = {"usd": 1e-6, "gwh": 1e-3, "ratio": 1, "factor": 1}
-    columns = [
-        text.BUILD_YEAR.format(year=period) if row.construction else text.OPERATING_YEAR.format(year=row.operating_year)
-        for period, row in table.iterrows()
-    ]
-    rows = {label: table[column].to_numpy() * scales[unit] for column, label, unit in text.CASH_FLOW_ROWS}
-    return pd.DataFrame.from_dict(rows, orient="index", columns=columns)
-
-
-def styled_cash_flows(table: pd.DataFrame):
-    """One decimal for money and energy, two for DSCR, four for discount factors; true minus signs."""
-    decimals = {label: {"ratio": 2, "factor": 4}.get(unit, 1) for _, label, unit in text.CASH_FLOW_ROWS}
-    styler = table.style
-    for label, places in decimals.items():
-        styler = styler.format(
-            lambda v, places=places: "" if pd.isna(v) else signed(v, places),
-            subset=pd.IndexSlice[[label], :],
-        )
-    return styler
+    results = run_model(inputs)
+    return {
+        "lines": statement.build_statement(inputs, results),
+        "columns": statement.column_labels(inputs, results),
+        "key_years": statement.key_year_positions(inputs, results),
+    }
 
 
 @st.cache_data
@@ -691,11 +678,20 @@ with tariff_column:
 
 with st.expander(text.CASH_FLOWS_TITLE):
     st.caption(text.CASH_FLOWS_CAPTION)
-    cash_flows = cash_flow_table(country, override_key)
-    st.dataframe(styled_cash_flows(cash_flows))
+    cash_flows = cash_flow_statement(country, override_key)
+    view_column, lcoe_column = st.columns([2, 1])
+    with view_column:
+        view = st.radio(
+            text.CASH_FLOWS_VIEW_LABEL, list(text.CASH_FLOWS_VIEWS), key="cash_flow_view",
+            format_func=text.CASH_FLOWS_VIEWS.get, horizontal=True,
+        )
+    with lcoe_column:
+        show_lcoe = st.checkbox(text.CASH_FLOWS_LCOE_TOGGLE, key="show_lcoe_workings")
+    positions = cash_flows["key_years"] if view == "key" else list(range(len(cash_flows["columns"])))
+    st.html(statement.to_html(cash_flows["lines"], cash_flows["columns"], positions, show_lcoe))
     st.download_button(
         text.CASH_FLOWS_DOWNLOAD,
-        cash_flows.round(6).to_csv(index_label="USD millions unless stated").encode("utf-8"),
+        statement.to_csv(cash_flows["lines"], cash_flows["columns"]).encode("utf-8"),
         file_name=text.CASH_FLOWS_FILE.format(country=country),
         mime="text/csv",
     )
