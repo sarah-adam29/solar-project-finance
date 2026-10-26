@@ -491,6 +491,20 @@ def method_markdown(facts: dict, judgment_items: list[str], widened_items: list[
     ])
 
 
+# The README has its own Limitations and Disclaimer sections, so its Method
+# section leaves out those blocks and the links, and points to the answer key.
+README_ANSWER_KEY = "Excel answer key: [excel/solar_answer_key.xlsx](excel/solar_answer_key.xlsx)"
+
+
+def readme_method_markdown(app_method: str) -> str:
+    """The README's Method section: the app's Method text minus Limitations, links and Disclaimer."""
+    for block in (METHOD_LIMITATIONS, METHOD_LINKS, "\n".join([METHOD_DISCLAIMER_HEADING, "", DISCLAIMER])):
+        if f"\n\n{block}" not in app_method:
+            raise ValueError(f"Block not found in the app's Method text: {block.splitlines()[0]}")
+        app_method = app_method.replace(f"\n\n{block}", "")
+    return f"{app_method}\n\n{README_ANSWER_KEY}"
+
+
 # --- Sources --------------------------------------------------------------
 
 SOURCES_HEADING = "Sources"
