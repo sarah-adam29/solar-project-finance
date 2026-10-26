@@ -5,6 +5,11 @@
 
 Live app: https://gulf-solar-tariffs.streamlit.app/
 
+## Headline finding
+In this model, awarded tariffs only cover costs at a ~3% cost of capital (KSA 3.3%, UAE 2.8%), against WACC estimates of 7.7% (KSA, published) and 7.5% (UAE, judgment).
+
+![Line chart for the KSA base case: LCOE rises with the cost of capital and crosses the awarded 1.30 US cents/kWh tariff at an implied cost of capital of 3.3%, 4.4 percentage points below the 7.7% base estimate. The conflict (+70bp) and severe (+130bp) scenarios give LCOEs of 2.06 and 2.16.](docs/finding-chart.png)
+
 ## Overview
 A project finance model for utility-scale solar PV in Saudi Arabia (KSA) and
 the United Arab Emirates (UAE), delivered as a Streamlit web app. It takes a
