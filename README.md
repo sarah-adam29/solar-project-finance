@@ -16,8 +16,7 @@ the United Arab Emirates (UAE), delivered as a Streamlit web app. It takes a
 set of project inputs and produces annual cash flows and the headline metrics:
 LCOE, project IRR, equity IRR, NPV, and minimum and average DSCR.
 
-This is a public portfolio project. It uses public sources and invented inputs
-only.
+This is a public portfolio project. It uses public sources, plus judgment and invented inputs that are labelled as such.
 
 ## Key questions
 - What does solar power cost to produce in KSA and the UAE, and what drives
@@ -75,25 +74,7 @@ Each slider runs from the low to the high value in data/assumptions.csv. Where t
 - UAE Degradation: low end widened from 0.5 to 0.3 %/yr
 - UAE Debt tenor: high end widened from 27 to 29 years
 
-**Limitations (v1)**
-
-- Flat tariff and O&M.
-- All capacity reaches COD together (no phased COD).
-- Pro-rata debt/equity funding during construction.
-- Interest during construction capitalised into debt.
-- No DSRA.
-- No tax-loss carry-forward.
-- Zakat approximated as 2.5% of profit.
-- Construction period fixed at 2 years.
-
-**Code and answer key**
-
-- [GitHub repository](https://github.com/sarah-adam29/solar-project-finance)
-- [Excel answer key](https://github.com/sarah-adam29/solar-project-finance/blob/main/excel/solar_answer_key.xlsx)
-
-**Disclaimer**
-
-Personal learning project, not investment advice. I built this model myself from public sources to learn project finance modelling and Python. It has not been reviewed or validated by industry experts, developers, lenders or other market participants, and its results may be wrong. Please don't use it for investment, lending or policy decisions. If you have better data or spot an error, I'd be glad to hear from you: [open an issue on GitHub](https://github.com/sarah-adam29/solar-project-finance/issues) or [message me on LinkedIn](https://www.linkedin.com/in/sarah-adam-a24949b1/).
+Excel answer key: [excel/solar_answer_key.xlsx](excel/solar_answer_key.xlsx)
 
 **Conventions**
 
