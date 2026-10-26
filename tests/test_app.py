@@ -180,7 +180,8 @@ def test_readme_method_matches_the_app():
     app = run_app("KSA")
     method = app.expander[2].markdown[0].value
     readme = (Path(APP).parent / "README.md").read_text()
-    assert f"## Method\n{method}\n" in readme
+    readme_method = text.readme_method_markdown(method)
+    assert f"## Method\n{readme_method}\n" in readme, f"README Method section should be:\n\n{readme_method}"
 
 
 def test_cash_flow_view_and_lcoe_toggle():
